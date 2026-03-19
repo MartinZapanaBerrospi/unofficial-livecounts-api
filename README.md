@@ -1,7 +1,7 @@
 # 🎶 Unofficial Livecounts.io API
 
-**Unofficial API for Livecounts.io to retrieve live counts for users and videos on TikTok, YouTube, Twitter, Twitch,
-KickLive, Vlive, and Odysee**
+**High-performance Unofficial API for Livecounts.io to retrieve live counts for users and videos on TikTok, YouTube, Twitter, Twitch,
+KickLive, Vlive, and Odysee. Optimized with `httpx` and `msgspec` for maximum speed and reliability.**
 
 ## 📝 Supported APIs
 
@@ -19,6 +19,9 @@ KickLive, Vlive, and Odysee**
 pip install unofficial_livecounts_api
 ```
 
+> [!TIP]
+> This version is optimized with `httpx` and `msgspec`, offering both Synchronous and Asynchronous support for maximum performance.
+
 ### Tiktok API
 
 - **User API**
@@ -26,11 +29,17 @@ pip install unofficial_livecounts_api
 ```python
 from unofficial_livecounts_api.tiktok import TiktokAgent
 
-# Find users
+# Find users (Sync)
 users = TiktokAgent.find_user(query="best")
 
-# Live count a user
+# Find users (Async)
+users = await TiktokAgent.find_user_async(query="best")
+
+# Live count a user (Sync)
 user_metric_by_user_id = TiktokAgent.fetch_user_metrics(query="123456789")
+
+# Live count a user (Async)
+user_metric_by_user_id = await TiktokAgent.fetch_user_metrics_async(query="123456789")
 ```
 
 - **Video API**
