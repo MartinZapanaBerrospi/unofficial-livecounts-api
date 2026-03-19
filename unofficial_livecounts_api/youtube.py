@@ -1,5 +1,5 @@
 from unofficial_livecounts_api import env
-from unofficial_livecounts_api.utils import send_request
+from unofficial_livecounts_api.utils import async_send_request, send_request
 
 
 class YoutubeChannel:
@@ -100,18 +100,7 @@ class YoutubeAgent:
 
     @staticmethod
     def find_channel(query: str) -> list[YoutubeChannel]:
-        """
-        Search for YouTube channels based on a channel name query.
-
-        Args:
-            query (str): The channel name to search for on YouTube
-
-        Returns:
-            list[YoutubeChannel]: A list of YoutubeChannel objects containing:
-                - channel_id (str): Unique identifier of the channel
-                - display_name (str): Channel name as displayed on YouTube
-                - thumbnail (str): URL to the channel's profile picture
-        """
+        """Search for YouTube channels based on a channel name query (Synchronous)."""
         users = send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}").get("userData", [])
         return [
             YoutubeChannel(
@@ -123,20 +112,22 @@ class YoutubeAgent:
         ]
 
     @staticmethod
+    async def find_channel_async(query: str) -> list[YoutubeChannel]:
+        """Search for YouTube channels based on a channel name query (Asynchronous)."""
+        raw_data = await async_send_request(f"{env.YOUTUBE_CHANNEL_SEARCH_API}/{query}")
+        users = raw_data.get("userData", [])
+        return [
+            YoutubeChannel(
+                channel_id=item.get("id", ""),
+                display_name=item.get("username", ""),
+                thumbnail=item.get("avatar", ""),
+            )
+            for item in users
+        ]
+
+    @staticmethod
     def fetch_channel_metrics(query: str) -> YoutubeChannelCount:
-        """
-        Fetch engagement metrics and statistics for a YouTube channel.
-
-        Args:
-            query (str): The channel_id of the YouTube channel to fetch metrics for
-
-        Returns:
-            YoutubeChannelCount: An object containing channel metrics including:
-                - channel_id (str): Unique identifier of the channel
-                - follower_count (int): Number of subscribers to the channel
-                - channel_stats (list[int]): List of three engagement metrics
-                  [likes, comments, shares] across all videos
-        """
+        """Fetch engagement metrics and statistics for a YouTube channel (Synchronous)."""
         metrics = send_request(f"{env.YOUTUBE_CHANNEL_STATS_API}/{query}")
         return YoutubeChannelCount(
             channel_id=query,
@@ -145,19 +136,18 @@ class YoutubeAgent:
         )
 
     @staticmethod
+    async def fetch_channel_metrics_async(query: str) -> YoutubeChannelCount:
+        """Fetch engagement metrics and statistics for a YouTube channel (Asynchronous)."""
+        metrics = await async_send_request(f"{env.YOUTUBE_CHANNEL_STATS_API}/{query}")
+        return YoutubeChannelCount(
+            channel_id=query,
+            follower_count=metrics.get("followerCount", 0),
+            channel_stats=metrics.get("bottomOdos", [0, 0, 0]),
+        )
+
+    @staticmethod
     def find_video(query: str) -> list[YoutubeVideo]:
-        """
-        Search for YouTube videos based on a search query.
-
-        Args:
-            query (str): The search terms to find videos on YouTube
-
-        Returns:
-            list[YoutubeVideo]: A list of YoutubeVideo objects containing:
-                - video_id (str): Unique identifier of the video
-                - display_name (str): Title of the video
-                - thumbnail (str): URL to the video's thumbnail image
-        """
+        """Search for YouTube videos based on a search query (Synchronous)."""
         videos = send_request(f"{env.YOUTUBE_VIDEO_SEARCH_API}/{query}").get("userData", [])
         return [
             YoutubeVideo(
@@ -169,21 +159,33 @@ class YoutubeAgent:
         ]
 
     @staticmethod
+    async def find_video_async(query: str) -> list[YoutubeVideo]:
+        """Search for YouTube videos based on a search query (Asynchronous)."""
+        raw_data = await async_send_request(f"{env.YOUTUBE_VIDEO_SEARCH_API}/{query}")
+        videos = raw_data.get("userData", [])
+        return [
+            YoutubeVideo(
+                video_id=item.get("id", ""),
+                display_name=item.get("username", ""),
+                thumbnail=item.get("avatar", ""),
+            )
+            for item in videos
+        ]
+
+    @staticmethod
     def fetch_video_metrics(query: str) -> YoutubeVideoCount:
-        """
-        Fetch engagement metrics for a specific YouTube video.
-
-        Args:
-            query (str): The video_id of the YouTube video to fetch metrics for
-
-        Returns:
-            YoutubeVideoCount: An object containing video metrics including:
-                - video_id (str): Unique identifier of the video
-                - view_count (int): Number of views on the video
-                - video_stats (list[int]): List of three engagement metrics
-                  [likes, comments, shares] for the video
-        """
+        """Fetch engagement metrics for a specific YouTube video (Synchronous)."""
         metrics = send_request(f"{env.YOUTUBE_VIDEO_STATS_API}/{query}")
+        return YoutubeVideoCount(
+            video_id=query,
+            view_count=metrics.get("followerCount", 0),
+            video_stats=metrics.get("bottomOdos", [0, 0, 0]),
+        )
+
+    @staticmethod
+    async def fetch_video_metrics_async(query: str) -> YoutubeVideoCount:
+        """Fetch engagement metrics for a specific YouTube video (Asynchronous)."""
+        metrics = await async_send_request(f"{env.YOUTUBE_VIDEO_STATS_API}/{query}")
         return YoutubeVideoCount(
             video_id=query,
             view_count=metrics.get("followerCount", 0),

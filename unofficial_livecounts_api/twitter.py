@@ -1,5 +1,5 @@
 from unofficial_livecounts_api import env
-from unofficial_livecounts_api.utils import send_request
+from unofficial_livecounts_api.utils import async_send_request, send_request
 
 
 class TwitterUser:
@@ -54,15 +54,7 @@ class TwitterAgent:
 
     @staticmethod
     def find_user(query: str) -> TwitterUser:
-        """
-        Find a Twitter user by their username.
-
-        Args:
-            query (str): The username of the Twitter user to find.
-
-        Returns:
-            TwitterUser
-        """
+        """Find a Twitter user by their username (Synchronous)."""
         users = send_request(f"{env.TWITTER_USER_SEARCH_API}/{query}").get("userData", [])
         return TwitterUser(
             user_id=users[0]["id"],
@@ -72,17 +64,31 @@ class TwitterAgent:
         )
 
     @staticmethod
+    async def find_user_async(query: str) -> TwitterUser:
+        """Find a Twitter user by their username (Asynchronous)."""
+        raw_data = await async_send_request(f"{env.TWITTER_USER_SEARCH_API}/{query}")
+        users = raw_data.get("userData", [])
+        return TwitterUser(
+            user_id=users[0]["id"],
+            display_name=users[0]["username"],
+            thumbnail=users[0]["avatar"],
+            verified=users[0]["verified"],
+        )
+
+    @staticmethod
     def fetch_user_metrics(query: str) -> TwitterUserCount:
-        """
-        Fetches the metrics of a Twitter user based on their username.
-
-        Args:
-            query (str): The username of the Twitter user to fetch metrics for.
-
-        Returns:
-            TwitterUserCount: An instance of the TwitterUserCount class containing the metrics of the user.
-        """
+        """Fetches the metrics of a Twitter user based on their username (Synchronous)."""
         metrics = send_request(f"{env.TWITTER_USER_STATS_API}/{query}")
+        return TwitterUserCount(
+            user_id=query,
+            follower_count=metrics.get("followerCount", 0),
+            user_stats=metrics.get("bottomOdos", [0, 0, 0]),
+        )
+
+    @staticmethod
+    async def fetch_user_metrics_async(query: str) -> TwitterUserCount:
+        """Fetches the metrics of a Twitter user based on their username (Asynchronous)."""
+        metrics = await async_send_request(f"{env.TWITTER_USER_STATS_API}/{query}")
         return TwitterUserCount(
             user_id=query,
             follower_count=metrics.get("followerCount", 0),

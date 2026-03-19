@@ -1,5 +1,5 @@
 from unofficial_livecounts_api import env
-from unofficial_livecounts_api.utils import send_request
+from unofficial_livecounts_api.utils import async_send_request, send_request
 
 
 class TwitchUser:
@@ -43,21 +43,7 @@ class TwitchAgent:
 
     @staticmethod
     def find_user(query: str) -> list[TwitchUser]:
-        """
-        Search for Twitch users by username and return a list of matching profiles.
-
-        Args:
-            query (str): The username to search for on Twitch
-
-        Returns:
-            list[TwitchUser]: A list of TwitchUser objects containing:
-                - user_id (str): Unique identifier of the user
-                - username (str): Login name of the user
-                - display_name (str): Display name shown on profile
-                - thumbnail (str): URL to the user's profile picture
-        Note:
-            Returns an empty list if no users are found matching the query
-        """
+        """Search for Twitch users by username (Synchronous)."""
         raw_user = send_request(f"{env.TWITCH_USER_SEARCH_API}/{query}")
         return [
             TwitchUser(
@@ -70,19 +56,32 @@ class TwitchAgent:
         ]
 
     @staticmethod
+    async def find_user_async(query: str) -> list[TwitchUser]:
+        """Search for Twitch users by username (Asynchronous)."""
+        raw_user = await async_send_request(f"{env.TWITCH_USER_SEARCH_API}/{query}")
+        return [
+            TwitchUser(
+                user_id=item.get("userId", item.get("userid", "")),
+                username=item.get("id", ""),
+                display_name=item.get("username", ""),
+                thumbnail=item.get("avatar", ""),
+            )
+            for item in raw_user.get("userData", [])
+        ]
+
+    @staticmethod
     def fetch_user_metrics(query: str) -> TwitchUserCount:
-        """
-        Fetch follower metrics for a specific Twitch user.
-
-        Args:
-            query (str): The username of the Twitch user to fetch metrics for
-
-        Returns:
-            TwitchUserCount: An object containing user metrics including:
-                - user_id (str): Username of the account
-                - follower_count (int): Number of followers for the channel
-        """
+        """Fetch follower metrics for a specific Twitch user (Synchronous)."""
         metrics = send_request(f"{env.TWITCH_USER_STATS_API}/{query}")
+        return TwitchUserCount(
+            user_id=query,
+            follower_count=metrics.get("followerCount", 0),
+        )
+
+    @staticmethod
+    async def fetch_user_metrics_async(query: str) -> TwitchUserCount:
+        """Fetch follower metrics for a specific Twitch user (Asynchronous)."""
+        metrics = await async_send_request(f"{env.TWITCH_USER_STATS_API}/{query}")
         return TwitchUserCount(
             user_id=query,
             follower_count=metrics.get("followerCount", 0),
