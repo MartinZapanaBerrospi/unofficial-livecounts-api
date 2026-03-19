@@ -1,5 +1,5 @@
 import asyncio
-from unofficial_livecounts_api.api import api
+from unofficial_livecounts_api import api
 
 async def test_all():
     print("--- TikTok Test ---")
