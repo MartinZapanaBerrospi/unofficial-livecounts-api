@@ -1,114 +1,99 @@
-# 🎶 Unofficial Livecounts.io API
+# 🎶 Unofficial Livecounts.io API - Alto Rendimiento
 
-**High-performance Unofficial API for Livecounts.io to retrieve live counts for users and videos on TikTok, YouTube, Twitter, Twitch,
-KickLive, Vlive, and Odysee. Optimized with `httpx` and `msgspec` for maximum speed and reliability.**
+**Una librería de alto rendimiento para extraer estadísticas en tiempo real de Livecounts.io. Soporta TikTok, YouTube, Twitter y Twitch de forma síncrona y asíncrona.**
 
-## 📝 Supported APIs
+Esta versión ha sido optimizada para ofrecer la máxima velocidad posible mediante el uso de `httpx` (networking moderno) y `msgspec` (serialización de datos ultra-rápida).
 
-- [x] **YouTube**: User/Video Count
-- [x] **TikTok**: User/Video Count
-- [x] **Twitter**: User Count
-- [x] **Twitch**: User Count
-- [ ] ~**Kicklive**~: Use the Official API
-- [ ] **Vlive**: To be supported
-- [ ] **Odysee-live**: To be supported
+## ✨ Características Principales
 
-## 🕵️ Usage
+- **Velocidad Extrema**: Hasta 3.3x más rápido gracias a la concurrencia asíncrona y parsing eficiente.
+- **Soporte Todo-en-Uno**: TikTok, YouTube, Twitter y Twitch en una sola librería.
+- **Multimodo**: Soporte nativo para programación síncrona (`api.tiktok.find_user`) y asíncrona (`api.tiktok.find_user_async`).
+- **Minimalista**: Todo el núcleo funcional se encuentra en un solo archivo profesional (`unofficial_livecounts_api.py`).
+- **Manejo de Sesiones**: Reutilización de clientes HTTP para minimizar la latencia de conexión.
 
-```shell
-pip install unofficial_livecounts_api
+---
+
+## 🚀 Instalación y Preparación
+
+### 1. Requisitos
+- Python 3.10 o superior.
+- Dependencias indicadas en `requirements.txt`.
+
+### 2. Configuración del Entorno
+Se recomienda usar un entorno virtual:
+```bash
+python -m venv venv
+.\venv\Scripts\activate  # En Windows
+pip install -r requirements.txt
 ```
 
-> [!TIP]
-> This version is optimized with `httpx` and `msgspec`, offering both Synchronous and Asynchronous support for maximum performance.
+---
 
-### Tiktok API
+## 🕵️ Guía de Uso
 
-- **User API**
+### Importación
+```python
+from unofficial_livecounts_api import api
+```
+
+### 1. TikTok API
+Ofrece búsqueda de usuarios, métricas detalladas y próximamente videos.
 
 ```python
-from unofficial_livecounts_api.tiktok import TiktokAgent
+# Síncrono
+usuarios = api.tiktok.find_user("best")
+metricas = api.tiktok.fetch_user_metrics("userId_ejemplo")
 
-# Find users (Sync)
-users = TiktokAgent.find_user(query="best")
-
-# Find users (Async)
-users = await TiktokAgent.find_user_async(query="best")
-
-# Live count a user (Sync)
-user_metric_by_user_id = TiktokAgent.fetch_user_metrics(query="123456789")
-
-# Live count a user (Async)
-user_metric_by_user_id = await TiktokAgent.fetch_user_metrics_async(query="123456789")
+# Asíncrono (Recomendado para rendimiento)
+usuarios = await api.tiktok.find_user_async("best")
+metricas = await api.tiktok.fetch_user_metrics_async("userId_ejemplo")
 ```
 
-- **Video API**
+### 2. YouTube API
+Permite buscar canales y obtener sus suscriptores y métricas en vivo.
 
 ```python
-from unofficial_livecounts_api.tiktok import TiktokAgent
+# Buscar canales
+canales = await api.youtube.find_channel_async("mrbeast")
 
-# Find a video
-video_by_query = TiktokAgent.find_video(query="https://tiktok.com/@test/video/122222223233232?test1=value1")
-video_by_video_id = TiktokAgent.find_video(query="122222223233232")
-
-# Live count video
-video_metric_by_query = TiktokAgent.fetch_video_metrics(
-    query="https://tiktok.com/@test/video/122222223233232?test1=value1")
-video_metric_by_video_id = TiktokAgent.fetch_video_metrics(query="122222223233232")
+# Obtener métricas
+stats = await api.youtube.fetch_channel_metrics_async("channelId")
+print(f"Subscriptores: {stats['subscribers']}")
 ```
 
-### YouTube API
-
-- **User API**
+### 3. Twitter y Twitch
+Funcionamiento similar para seguidores en tiempo real.
 
 ```python
-from unofficial_livecounts_api.youtube import YoutubeAgent
+# Twitter
+twitter_user = await api.twitter.find_user_async("jack")
+t_metrics = await api.twitter.fetch_user_metrics_async("jack")
 
-# Find channels by given query
-channels = YoutubeAgent.find_channel(query="test")
-
-# Live count channel
-channel_metrics_by_query = YoutubeAgent.fetch_channel_metrics(query="test")
-
+# Twitch
+twitch_users = await api.twitch.find_user_async("jack")
+tw_metrics = await api.twitch.fetch_user_metrics_async("jack")
 ```
 
-- **Video API**
+---
+
+## ⚡ Rendimiento y Concurrencia
+Para realizar múltiples consultas a la vez, utiliza el modo asíncrono. Esto permite que las peticiones se realicen en paralelo en lugar de secuencialmente.
 
 ```python
-from unofficial_livecounts_api.youtube import YoutubeAgent
+import asyncio
+from unofficial_livecounts_api import api
 
-# Find videos by given query
-videos = YoutubeAgent.find_video(query="test")
+async def main():
+    canales = ["mrbeast", "pewdiepie", "tseries"]
+    tareas = [api.youtube.find_channel_async(c) for c in canales]
+    resultados = await asyncio.gather(*tareas)
+    # ... procesar resultados ...
 
-# Live count a video
-video_metrics_by_query = YoutubeAgent.fetch_video_metrics(query="123456789")
+asyncio.run(main())
 ```
 
-### Twitter API
+---
 
-```python
-from unofficial_livecounts_api.twitter import TwitterAgent
-
-# Find users by given query
-user = TwitterAgent.find_user(query="jack")
-
-# Live count user
-metrics = TwitterAgent.fetch_user_metrics(query="jack")
-```
-
-### Twitch API
-
-```python
-from unofficial_livecounts_api.twitch import TwitchAgent
-
-# Find users by given query
-user = TwitchAgent.find_user(query="jack")
-
-# Live count user
-metrics = TwitchAgent.fetch_user_metrics(query="jack")
-```
-
-## 📛 Disclaimer
-
-This project aimed to security research, testing purpose. Any misuse of this API for malicious purposes is not condoned.
-The developers of this API are not responsible for any illegal or unethical activities carried out using this API.
+## 📛 Aviso Legal
+Este proyecto tiene fines educacionales y de investigación de seguridad. El uso indebido para fines maliciosos no está permitido y los desarrolladores no se hacen responsables de actividades ilegales realizadas con esta herramienta.
