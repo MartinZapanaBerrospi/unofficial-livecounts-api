@@ -19,7 +19,7 @@ async def test_all():
     print("\n--- Twitter Test ---")
     try:
         user = await api.twitter.find_user_async("jack")
-        print(f"Found Twitter user: {user.display_name}")
+        print(f"Found Twitter user: {user['username']}")
     except Exception as e:
         print(f"Twitter error: {e}")
 
