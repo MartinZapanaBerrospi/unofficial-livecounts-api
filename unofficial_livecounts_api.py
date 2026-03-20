@@ -69,6 +69,25 @@ class YoutubeAgent:
     def find_video(self, q: str):
         data = send_request(f"{YOUTUBE_VIDEO_SEARCH_API}/{quote(q)}")
         return data.get("list", data.get("userData", []))
+    def fetch_metadata(self, uid: str, pk: str):
+        try:
+            url = f"https://livecounts.io/{PLATFORMS_SLUGS.get(pk, 'youtube-live-subscriber-counter')}/{uid}"
+            response = http_client.get(url, headers=__get_default_header(int(datetime.now().timestamp() * 1000)))
+            html = response.text
+            import re
+            banner_match = re.search(r'"banner":"([^"]*)"', html)
+            verified_match = re.search(r'"verified":\s*(true|false)', html)
+            return {
+                "banner": banner_match.group(1) if banner_match else None,
+                "verified": verified_match.group(1) == "true" if verified_match else False
+            }
+        except: return {"banner": None, "verified": False}
+
+PLATFORMS_SLUGS = {
+    "yt_subs": "youtube-live-subscriber-counter",
+    "yt_views": "youtube-live-view-counter",
+    "tt_followers": "tiktok-live-follower-counter"
+}
 
 class LivecountsAPI:
     def __init__(self):
