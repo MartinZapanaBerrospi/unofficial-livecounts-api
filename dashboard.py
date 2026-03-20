@@ -10,34 +10,33 @@ from unofficial_livecounts_api import (
 # ──────────────────────────── Page Config ────────────────────────────
 st.set_page_config(page_title="Livecounts Elite", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
 
-# ──────────────────────────── HIGH-FIDELITY V5 CSS ───────────────────
+# ──────────────────────────── CLEAN STATE V5.1 CSS ───────────────────
 CSS = (
-    "font-family:'Outfit',sans-serif;.stApp{background:#000000}"
+    "font-family:'Outfit',sans-serif;.stApp{background:#000}"
     "#MainMenu,footer,header{visibility:hidden}.main-container{padding:0;max-width:1100px;margin:0 auto}"
     ".hero-section{text-align:center;padding:12vh 2rem 8vh}"
-    ".hero-title{font-size:clamp(3.5rem,10vw,6rem);font-weight:900;letter-spacing:-4px;color:white;margin-bottom:0.5rem;line-height:1}"
-    ".hero-subtitle{color:#525252;font-size:1.4rem;text-transform:uppercase;letter-spacing:6px;font-weight:400;margin-bottom:4rem}"
-    ".search-card{background:rgba(23,23,23,0.8);border:1px solid #333;border-radius:24px;padding:12px;display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto;box-shadow:0 30px 60px rgba(0,0,0,0.5);backdrop-filter:blur(30px)}"
+    ".hero-title{font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:-4px;color:white;margin-bottom:0.5rem;line-height:1}"
+    ".hero-subtitle{color:#404040;font-size:1.3rem;text-transform:uppercase;letter-spacing:6px;font-weight:400;margin-bottom:4rem}"
+    ".search-card-container{max-width:900px;margin:0 auto;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:24px;padding:12px;box-shadow:0 30px 60px rgba(0,0,0,0.5)}"
     ".elite-btn{background:#ff4b4b!important;border:none!important;border-radius:12px!important;color:white!important;font-weight:800!important;padding:12px 24px!important;height:54px!important;text-transform:uppercase;letter-spacing:1px}"
     ".list-container{background:#0a0a0a;border:1px solid #1f1f1f;border-radius:20px;max-width:800px;margin:2rem auto;overflow:hidden}"
-    ".list-item{display:flex;align-items:center;gap:20px;padding:1.5rem 2rem;border-bottom:1px solid #141414;transition:all 0.2s;cursor:pointer}"
-    ".list-item:hover{background:#111}.list-item:last-child{border-bottom:none}"
-    ".list-avatar{width:70px;height:70px;border-radius:50%;border:2px solid #262626;flex-shrink:0}"
-    ".list-name{color:white;font-weight:700;font-size:1.4rem;line-height:1.2}"
-    ".list-handle{color:#737373;font-size:1rem;font-weight:400}"
-    ".dashboard-banner{width:100%;height:300px;background:#171717;background-size:cover;background-position:center;border-bottom:1px solid #333;position:relative}"
+    ".list-item{display:flex;align-items:center;gap:20px;padding:1rem 1.5rem;border-bottom:1px solid #141414;transition:all 0.2s;cursor:pointer;text-align:left}"
+    ".list-item:hover{background:#111}"
+    ".list-avatar{width:60px;height:60px;border-radius:50%;border:2px solid #262626;flex-shrink:0}"
+    ".list-info{flex-grow:1}.list-name{color:white;font-weight:700;font-size:1.2rem;line-height:1.2}"
+    ".list-handle{color:#737373;font-size:0.9rem;font-weight:400}"
+    ".dashboard-banner{width:100%;height:280px;background:linear-gradient(to bottom,#0a0a0a,#000);border-bottom:1px solid #1f1f1f;position:relative}"
     ".profile-overlay{width:140px;height:140px;border-radius:50%;border:6px solid #000;position:absolute;bottom:-70px;left:50%;transform:translateX(-50%);background:#171717;z-index:10}"
     ".dashboard-content{padding:100px 1rem 4rem;text-align:center}"
-    ".main-count{font-size:clamp(5rem,12vw,10rem);font-weight:900;color:white;letter-spacing:-3px;line-height:1;margin-bottom:1rem}"
-    ".count-label{color:#a3a3a3;font-size:1.5rem;font-weight:600;letter-spacing:2px;text-transform:capitalize}"
-    ".metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:5rem;padding:0 1rem}"
-    ".metric-box{background:#000;border:1px solid #1f1f1f;border-radius:8px;padding:2rem 1.5rem;text-align:center}"
-    ".metric-val{font-size:2.2rem;font-weight:900;color:white;margin-bottom:0.5rem}"
-    ".metric-title{color:#a3a3a3;font-size:1rem;font-weight:700;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:8px}"
-    ".metric-title .material-symbols-rounded{font-size:1.4rem;color:#3b82f6}"
-    "@media(max-width:768px){.metric-grid{grid-template-columns:1fr}.search-card{flex-direction:column;padding:16px}.platform-select{width:100%!important;border-right:none!important;border-bottom:1px solid #333!important}}"
+    ".main-count{font-size:clamp(4.5rem,11vw,9rem);font-weight:900;color:white;letter-spacing:-3px;line-height:1;margin-bottom:1rem}"
+    ".count-label{color:#a3a3a3;font-size:1.3rem;font-weight:600;letter-spacing:2px;text-transform:uppercase}"
+    ".metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:5rem;padding:0 1.5rem}"
+    ".metric-box{background:#0a0a0a;border:1px solid #1f1f1f;border-radius:12px;padding:2rem 1.5rem;text-align:center}"
+    ".metric-val{font-size:2rem;font-weight:800;color:white;margin-bottom:0.5rem}"
+    ".metric-title{color:#737373;font-size:0.9rem;font-weight:700;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:8px}"
+    ".metric-title .material-symbols-rounded{font-size:1.4rem;color:#ef4444}"
+    "@media(max-width:768px){.metric-grid{grid-template-columns:1fr}.dashboard-banner{height:200px}.profile-overlay{width:100px;height:100px;bottom:-50px}.dashboard-content{padding:70px 1rem 4rem}}"
 )
-
 st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,700,0,0' /><style>{CSS}</style>", unsafe_allow_html=True)
 
 # ──────────────────────────── PLATFORMS ──────────────────────────────
@@ -76,29 +75,45 @@ params = st.query_params
 if "user_id" not in st.session_state:
     st.session_state.user_id = params.get("u")
     st.session_state.platform_key = params.get("p", "yt_subs")
-    st.session_state.user_name = params.get("n", "")
-    st.session_state.user_avatar = params.get("a", "")
-    st.session_state.user_handle = params.get("h", "")
+    st.session_state.user_name = ""
+    st.session_state.user_avatar = ""
+    st.session_state.user_handle = ""
 
-defaults = {
-    "user_id": None, "user_name": "", "user_avatar": "", "user_handle": "",
-    "platform_key": "yt_subs", "history_values": [], "show_results": False,
-    "search_results": []
-}
+defaults = {"user_id": None, "user_name": "", "user_avatar": "", "user_handle": "", "platform_key": "yt_subs", "history_values": [], "history_times": [], "show_results": False, "search_results": []}
 for k, v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
 def clear_all():
+    st.session_state.update(user_id=None, show_results=False, history_values=[], history_times=[])
     st.query_params.clear()
-    st.session_state.update(user_id=None, show_results=False)
+
+# ──────────────────────────── METADATA AUTO-DISCOVERY ────────────────
+# If we have an ID from URL but no name/avatar, fetch it once
+if st.session_state.user_id and not st.session_state.user_name:
+    try:
+        if st.session_state.platform_key.startswith("yt"):
+            search_query = st.session_state.user_id # Usually ID is a good query for direct match
+            found = (api.youtube.find_channel(search_query) if st.session_state.platform_key=="yt_subs" else api.youtube.find_video(search_query))
+            # Find the exact match by ID
+            for r in found:
+                if r.get("id") == st.session_state.user_id:
+                    st.session_state.update(user_name=r.get("name"), user_avatar=r.get("avatar"), user_handle=r.get("handle", r.get("name")))
+                    break
+            else: # Fallback if no exact match in search results
+                 st.session_state.user_name = st.session_state.user_id
+        else:
+            m = api.tiktok.find_user(st.session_state.user_id)
+            if m:
+                 st.session_state.update(user_name=m[0]["name"], user_avatar=m[0]["avatar"], user_handle=m[0]["id"])
+    except: st.session_state.user_name = st.session_state.user_id
 
 # ──────────────────────────── UI ─────────────────────────────────────
 if st.session_state.show_results and not st.session_state.user_id:
     st.markdown('<div class="main-container" style="padding:4rem 2rem;">', unsafe_allow_html=True)
-    st.markdown('<h1 style="color:white;text-align:center;font-weight:900;margin-bottom:3rem;">RESULTADOS Hallados</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="color:white;text-align:center;font-weight:900;margin-bottom:3rem;">Resultados Hallados</h1>', unsafe_allow_html=True)
     
     if not st.session_state.search_results:
-        st.warning("No se encontraron resultados para esta búsqueda.")
+        st.warning("No se hallaron resultados.")
         if st.button("⬅️ VOLVER AL INICIO"): clear_all(); st.rerun()
     else:
         st.markdown('<div class="list-container">', unsafe_allow_html=True)
@@ -110,19 +125,24 @@ if st.session_state.show_results and not st.session_state.user_id:
             if rname is None: rname = rid
             if rhandle is None: rhandle = rname
             
-            # Use columns for layout but custom HTML for result row
-            col1, col2 = st.columns([1, 8])
-            with col1: st.image(ravatar, width=70) # Fallback for circle border in CSS is tricky with st.image
-            with col2:
-                if st.button(f"{rname} \n @{rhandle}", key=f"sel_{i}", help=rid, use_container_width=True):
-                    st.query_params.update(u=rid, p=st.session_state.platform_key, n=rname, a=ravatar, h=rhandle)
-                    st.session_state.update(user_id=rid, user_name=rname, user_avatar=ravatar, user_handle=rhandle, show_results=False, history_values=[])
-                    st.rerun()
-            st.markdown('<hr style="border-color:#141414;margin:0;">', unsafe_allow_html=True)
+            # Use custom HTML for list items to match Image 3 exactly
+            st.markdown(f'''
+            <div class="list-item">
+                <img src="{ravatar}" class="list-avatar">
+                <div class="list-info">
+                    <div class="list-name">{rname}</div>
+                    <div class="list-handle">{rhandle} · {rid}</div>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+            if st.button(f"Sincronizar {rname}", key=f"sync_{i}", use_container_width=True):
+                st.query_params.update(u=rid, p=st.session_state.platform_key)
+                st.session_state.update(user_id=rid, user_name=rname, user_avatar=ravatar, user_handle=rhandle, show_results=False, history_values=[], history_times=[])
+                st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('<p style="text-align:center;color:#404040;margin-top:2rem;font-size:0.9rem;">TIP: Press/Click on Search Result to Continue.</p>', unsafe_allow_html=True)
-    if st.button("⬅️ CANCELAR BÚSQUEDA", use_container_width=True): clear_all(); st.rerun()
+    if st.button("⬅️ SALIR", use_container_width=True, on_click=clear_all): st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.user_id:
@@ -131,17 +151,20 @@ elif st.session_state.user_id:
         st.error(res["error"]); st.button("🔄 REINTENTAR", on_click=st.rerun); st.button("⬅️ INICIO", on_click=clear_all); st.stop()
     
     count = res["main"]
+    st.session_state.history_times.append(datetime.now().strftime("%H:%M:%S"))
     st.session_state.history_values.append(count)
-    if len(st.session_state.history_values) > 100: st.session_state.history_values = st.session_state.history_values[-100:]
+    if len(st.session_state.history_times) > 100: 
+        st.session_state.history_times = st.session_state.history_times[-100:]
+        st.session_state.history_values = st.session_state.history_values[-100:]
 
-    # Dashboard V5 Pixel-Perfect (IMAGE 4)
+    # Dashboard V5.1 (IMAGE 4)
     st.markdown(f'<div class="dashboard-banner">', unsafe_allow_html=True)
     st.markdown(f'<img src="{st.session_state.user_avatar}" class="profile-overlay" />', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     st.markdown(f'<div class="dashboard-content"><h1 style="color:white;font-size:3.5rem;font-weight:800;margin-bottom:0.5rem;">{st.session_state.user_name}</h1>', unsafe_allow_html=True)
-    st.markdown(f'<div style="color:#ef4444;font-size:1.5rem;margin-bottom:3rem;"><span class="material-symbols-rounded" style="vertical-align:bottom;">play_circle</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="color:#ef4444;font-size:1.5rem;margin-bottom:3rem;"><span class="material-symbols-rounded">play_circle</span></div>', unsafe_allow_html=True)
     
     st.markdown(f'<div class="main-count">{fmt(count)}</div>', unsafe_allow_html=True)
     pinfo = [v for k,v in PLATFORMS.items() if v["key"]==st.session_state.platform_key][0]
@@ -155,21 +178,22 @@ elif st.session_state.user_id:
                 st.markdown(f'<div class="metric-box"><div class="metric-val">{fmt(itm["v"])}</div><div class="metric-title">{itm["l"]} <span class="material-symbols-rounded">{itm["i"]}</span></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Minimalist History Chart at very bottom
+    # Restored Time-based Chart
     if len(st.session_state.history_values) > 1:
         st.markdown("<div style='margin-top:4rem;'></div>", unsafe_allow_html=True)
-        fig = go.Figure(); fig.add_trace(go.Scatter(y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=4), fill='tonexty', fillcolor=f"rgba(255,255,255,0.03)", showlegend=False))
-        fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Outfit", color="#262626"), xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False))
+        fig = go.Figure(); fig.add_trace(go.Scatter(x=st.session_state.history_times, y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=4), fill='tonexty', fillcolor=f"rgba(255,255,255,0.03)", showlegend=False))
+        fig.update_layout(height=350, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="#000", plot_bgcolor="#000", font=dict(family="Outfit", color="#525252"), xaxis=dict(showgrid=False, zeroline=False, tickangle=0), yaxis=dict(showgrid=True, gridcolor="#141414", zeroline=False, tickformat=","))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
+    # Manual reload to allow back button to breath
     time.sleep(2); st.rerun()
 
 else:
-    # HERO SECTION (RE-DESIGNED V5)
+    # HERO SECTION (V5.1)
     st.markdown('<div class="main-container"><div class="hero-section">', unsafe_allow_html=True)
     st.markdown('<h1 class="hero-title">Livecounts Elite</h1><p class="hero-subtitle">PRECISIÓN EN TIEMPO REAL</p>', unsafe_allow_html=True)
     
-    # Fixed Search Bar (No ghost box)
+    st.markdown('<div class="search-card-container">', unsafe_allow_html=True)
     c0, c1, c2 = st.columns([1, 2.5, 1])
     with c0: h_pk = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
     with c1: h_q = st.text_input("Q", placeholder="Buscar canal o video...", key="h_q", label_visibility="collapsed")
