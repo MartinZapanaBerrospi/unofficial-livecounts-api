@@ -36,16 +36,66 @@ html, body, [class*="st-"] { font-family: 'Outfit', sans-serif; }
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     margin: 1rem 0;
 }
-.counter-number {
-    font-size: 5rem;
-    font-weight: 800;
-    background: linear-gradient(to right, #818cf8, #c084fc, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -3px;
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
+
+/* ── Animated digit counter (livecounts-style) ── */
+.digits-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: 1rem 0;
 }
+.digit-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px; height: 80px;
+    background: rgba(15,23,42,0.8);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #c4b5fd;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: color 0.3s ease;
+}
+.digit-cell.changed-up {
+    animation: glow-green 0.6s ease;
+}
+.digit-cell.changed-down {
+    animation: glow-red 0.6s ease;
+}
+@keyframes glow-green {
+    0% { color: #c4b5fd; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    40% { color: #4ade80; box-shadow: 0 0 20px rgba(74,222,128,0.5); }
+    100% { color: #c4b5fd; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+}
+@keyframes glow-red {
+    0% { color: #c4b5fd; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    40% { color: #f87171; box-shadow: 0 0 20px rgba(248,113,113,0.5); }
+    100% { color: #c4b5fd; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+}
+.digit-separator {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #475569;
+    padding: 0 2px;
+}
+.diff-badge {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 99px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.8rem;
+}
+.diff-up { background: rgba(74,222,128,0.15); color: #4ade80; }
+.diff-down { background: rgba(248,113,113,0.15); color: #f87171; }
+.diff-neutral { background: rgba(148,163,184,0.1); color: #94a3b8; }
+
 .counter-label {
     color: #94a3b8;
     font-size: 1.3rem;
@@ -58,6 +108,46 @@ html, body, [class*="st-"] { font-family: 'Outfit', sans-serif; }
     font-size: 1.8rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
+}
+
+/* ── Search result cards ── */
+.search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.result-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    background: rgba(30,41,59,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.result-card:hover {
+    border-color: rgba(129,140,248,0.4);
+    background: rgba(30,41,59,0.9);
+    transform: translateY(-2px);
+}
+.result-avatar {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(129,140,248,0.3);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.result-name {
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.result-id {
+    color: #64748b;
+    font-size: 0.8rem;
 }
 
 /* Metric cards */
@@ -178,56 +268,99 @@ if "user_id" not in st.session_state:
     st.session_state.user_name = ""
     st.session_state.user_avatar = ""
     st.session_state.platform_key = ""
+    st.session_state.prev_count = 0
+    st.session_state.search_results = []  # list of dicts
+    st.session_state.show_results = False
+
+# ──────────────────────────── Digit Renderer ─────────────────────────
+def render_animated_digits(current: int, previous: int) -> str:
+    """Build HTML for digit-by-digit counter with green/red glow on change."""
+    cur_str = str(current)
+    prev_str = str(previous) if previous else cur_str
+    
+    # Pad shorter string
+    max_len = max(len(cur_str), len(prev_str))
+    cur_str = cur_str.zfill(max_len)
+    prev_str = prev_str.zfill(max_len)
+    
+    diff = current - previous
+    cells = []
+    digit_count = 0
+    
+    for i, (c, p) in enumerate(zip(cur_str, prev_str)):
+        # Add thousands separator
+        remaining = max_len - i
+        if digit_count > 0 and remaining % 3 == 0:
+            cells.append('<span class="digit-separator">.</span>')
+        
+        css_class = "digit-cell"
+        if c != p:
+            css_class += " changed-up" if diff > 0 else " changed-down"
+        
+        cells.append(f'<span class="{css_class}">{c}</span>')
+        digit_count += 1
+    
+    # Difference badge
+    diff_html = ""
+    if previous and diff != 0:
+        sign = "+" if diff > 0 else ""
+        badge_cls = "diff-up" if diff > 0 else "diff-down"
+        diff_html = f'<div><span class="diff-badge {badge_cls}">{sign}{diff:,}</span></div>'.replace(",", ".")
+    elif previous:
+        diff_html = '<div><span class="diff-badge diff-neutral">= 0</span></div>'
+    
+    return f'<div class="digits-row">{"".join(cells)}</div>{diff_html}'
 
 # ──────────────────────────── Search Logic ───────────────────────────
 def do_search(query: str, platform_key: str):
-    """Search for a user and store the first result in session state."""
+    """Search and populate results list for user selection."""
+    results = []
     try:
         if platform_key == "yt_subs":
-            results = api.youtube.find_channel(query)
-            if results:
-                st.session_state.user_id = results[0]["id"]
-                st.session_state.user_name = results[0]["name"]
-                st.session_state.user_avatar = results[0].get("avatar", "")
+            raw = api.youtube.find_channel(query)
+            results = [{"id": r["id"], "name": r["name"], "avatar": r.get("avatar", "")} for r in raw]
         elif platform_key == "yt_views":
-            results = api.youtube.find_video(query)
-            if results:
-                st.session_state.user_id = results[0]["id"]
-                st.session_state.user_name = results[0]["name"]
-                st.session_state.user_avatar = results[0].get("avatar", "")
+            raw = api.youtube.find_video(query)
+            results = [{"id": r["id"], "name": r["name"], "avatar": r.get("avatar", "")} for r in raw]
         elif platform_key == "tt_followers":
-            results = api.tiktok.find_user(query)
-            if results:
-                st.session_state.user_id = results[0].user_id
-                st.session_state.user_name = results[0].display_name or results[0].username
-                st.session_state.user_avatar = results[0].thumbnail
+            raw = api.tiktok.find_user(query)
+            results = [{"id": r.user_id, "name": r.display_name or r.username, "avatar": r.thumbnail} for r in raw]
         elif platform_key == "tt_views":
-            # For TikTok video views, user provides a video URL/ID
             st.session_state.user_id = query
             st.session_state.user_name = f"Video: {query}"
             st.session_state.user_avatar = ""
+            st.session_state.platform_key = platform_key
+            st.session_state.prev_count = 0
+            st.session_state.show_results = False
+            return
         elif platform_key == "tw_followers":
-            result = api.twitter.find_user(query)
-            if result:
-                st.session_state.user_id = result["id"]
-                st.session_state.user_name = result["username"]
-                st.session_state.user_avatar = result.get("avatar", "")
+            raw = api.twitter.find_user(query)
+            if raw:
+                results = [{"id": raw["id"], "name": raw["username"], "avatar": raw.get("avatar", "")}]
         elif platform_key == "twitch_followers":
-            results = api.twitch.find_user(query)
-            if results:
-                st.session_state.user_id = results[0]["id"]
-                st.session_state.user_name = results[0]["username"]
-                st.session_state.user_avatar = results[0].get("avatar", "")
+            raw = api.twitch.find_user(query)
+            results = [{"id": r["id"], "name": r["username"], "avatar": r.get("avatar", "")} for r in raw]
         elif platform_key == "kick_followers":
-            results = api.kick.find_user(query)
-            if results:
-                st.session_state.user_id = results[0]["id"]
-                st.session_state.user_name = results[0]["username"]
-                st.session_state.user_avatar = results[0].get("avatar", "")
-        
-        st.session_state.platform_key = platform_key
+            raw = api.kick.find_user(query)
+            results = [{"id": r["id"], "name": r["username"], "avatar": r.get("avatar", "")} for r in raw]
     except RequestApiError as e:
         st.error(f"Error de búsqueda: {e}")
+        return
+    
+    st.session_state.search_results = results
+    st.session_state.show_results = True
+    st.session_state.platform_key = platform_key
+    st.session_state.user_id = None  # Clear previous selection
+    st.session_state.prev_count = 0
+
+def select_user(idx: int):
+    """Select a user from search results."""
+    r = st.session_state.search_results[idx]
+    st.session_state.user_id = r["id"]
+    st.session_state.user_name = r["name"]
+    st.session_state.user_avatar = r.get("avatar", "")
+    st.session_state.show_results = False
+    st.session_state.prev_count = 0
 
 def get_metrics(user_id: str, platform_key: str) -> dict:
     """Fetch real-time metrics for the current user."""
@@ -263,10 +396,60 @@ def get_metrics(user_id: str, platform_key: str) -> dict:
 if search_btn and query:
     do_search(query, platform_info["key"])
 
+# ──────────────────────────── Search Results List ─────────────────────
+if st.session_state.show_results and not st.session_state.user_id:
+    results = st.session_state.search_results
+    
+    if not results:
+        st.markdown(
+            '<div style="text-align:center;padding:4rem 2rem;">'
+            '<div style="font-size:3rem;margin-bottom:1rem;">🔍</div>'
+            '<div style="color:#f87171;font-size:1.2rem;font-weight:600;">No se encontraron usuarios</div>'
+            '<div style="color:#64748b;margin-top:0.5rem;">Intenta con otro nombre o verifica la plataforma seleccionada.</div>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            f'<div style="text-align:center;color:#94a3b8;margin:1rem 0;font-size:1.1rem;">'
+            f'Se encontraron <b style="color:#c4b5fd;">{len(results)}</b> resultados. Selecciona un usuario:'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        
+        # Render results as selectable buttons
+        cols_per_row = 3
+        for row_start in range(0, len(results), cols_per_row):
+            cols = st.columns(cols_per_row)
+            for col_idx in range(cols_per_row):
+                i = row_start + col_idx
+                if i >= len(results):
+                    break
+                r = results[i]
+                with cols[col_idx]:
+                    avatar_url = r.get("avatar", "")
+                    avatar_html = f'<img src="{avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />' if avatar_url else '<div style="width:40px;height:40px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:1.2rem;">?</div>'
+                    
+                    st.markdown(
+                        f'<div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;'
+                        f'background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.08);'
+                        f'border-radius:12px;margin-bottom:0.3rem;">'
+                        f'{avatar_html}'
+                        f'<div><div style="color:#e2e8f0;font-weight:600;">{r["name"]}</div>'
+                        f'<div style="color:#64748b;font-size:0.75rem;">{r["id"][:20]}...</div></div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+                    if st.button(f"Seleccionar", key=f"sel_{i}", use_container_width=True):
+                        select_user(i)
+                        st.rerun()
+
 # ──────────────────────────── Main Dashboard ─────────────────────────
-if st.session_state.user_id:
+elif st.session_state.user_id:
     metrics = get_metrics(st.session_state.user_id, st.session_state.platform_key)
     badge_class = platform_info["badge"]
+    main_count = metrics.get("main", 0)
+    prev_count = st.session_state.prev_count
     
     # Header
     st.markdown(
@@ -282,19 +465,21 @@ if st.session_state.user_id:
     if st.session_state.user_avatar:
         avatar_html = f'<img src="{st.session_state.user_avatar}" class="avatar-img" />'
     
-    main_count = metrics.get("main", 0)
-    formatted = f"{main_count:,}".replace(",", ".")
+    digits_html = render_animated_digits(main_count, prev_count)
     
     st.markdown(
         f'<div class="counter-box">'
         f'<span class="platform-badge {badge_class}">{selected_platform.split("—")[0].strip()}</span>'
         f'{avatar_html}'
         f'<div class="user-name">{st.session_state.user_name}</div>'
-        f'<div class="counter-number">{formatted}</div>'
+        f'{digits_html}'
         f'<div class="counter-label">{metrics.get("label", "")}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
+    
+    # Update previous count for next cycle
+    st.session_state.prev_count = main_count
     
     # Extra metrics
     extra = metrics.get("extra", {})
@@ -314,6 +499,14 @@ if st.session_state.user_id:
     # Error display
     if "error" in metrics:
         st.warning(f"⚠️ Error al obtener datos: {metrics['error']}")
+    
+    # Back button
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🔄 Cambiar Usuario", use_container_width=False):
+        st.session_state.user_id = None
+        st.session_state.show_results = True
+        st.session_state.prev_count = 0
+        st.rerun()
     
     # Auto-refresh
     if auto_refresh:
