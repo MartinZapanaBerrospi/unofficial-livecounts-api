@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livecounts Dashboard Pro - Estadísticas en Tiempo Real</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- CryptoJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Livecounts Pro</h1>
+            <p class="subtitle">Monitorización de estadísticas en tiempo real con precisión absoluta.</p>
+        </header>
+
+        <div class="search-section">
+            <select id="platformSelect">
+                <option value="youtube">YouTube</option>
+                <option value="twitter">Twitter</option>
+                <option value="twitch">Twitch</option>
+                <option value="tiktok">TikTok</option>
+            </select>
+            <div class="search-container">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar usuario o canal...">
+            </div>
+            <button id="searchBtn" style="padding: 0 2rem; background: var(--primary); border: none; border-radius: 16px; color: white; cursor: pointer; font-weight: 600;">Buscar</button>
+        </div>
+
+        <main id="dashboard">
+            <div id="welcomeMessage" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                <i data-lucide="line-chart" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
+                <p>Ingresa una búsqueda para comenzar a monitorizar en vivo.</p>
+            </div>
+            <!-- Dynamic Cards will appear here -->
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Livecounts Dashboard Pro. Potenciado por Unofficial Livecounts API.</p>
+        </footer>
+    </div>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
