@@ -20,10 +20,10 @@ load_dotenv()
 PROXY_ENABLED = os.getenv("PROXY_ENABLED", "off")
 PROXY_SERVER = os.getenv("PROXY_SERVER", None)
 
-TIKTOK_USER_SEARCH_API = os.getenv("TIKTOK_USER_SEARCH_API", "https://tiktok.livecounts.io/user/search").removesuffix("/")
-TIKTOK_USER_STATS_API = os.getenv("TIKTOK_USER_STATS_API", "https://tiktok.livecounts.io/user/stats").removesuffix("/")
-TIKTOK_VIDEO_SEARCH_API = os.getenv("TIKTOK_VIDEO_SEARCH_API", "https://tiktok.livecounts.io/video/data").removesuffix("/")
-TIKTOK_VIDEO_STATS_API = os.getenv("TIKTOK_VIDEO_STATS_API", "https://tiktok.livecounts.io/video/stats").removesuffix("/")
+TIKTOK_USER_SEARCH_API = os.getenv("TIKTOK_USER_SEARCH_API", "https://tiktok-api.tokcounter.com/user/search").removesuffix("/")
+TIKTOK_USER_STATS_API = os.getenv("TIKTOK_USER_STATS_API", "https://tiktok-api.tokcounter.com/user/stats").removesuffix("/")
+TIKTOK_VIDEO_SEARCH_API = os.getenv("TIKTOK_VIDEO_SEARCH_API", "https://tiktok-api.tokcounter.com/video/data").removesuffix("/")
+TIKTOK_VIDEO_STATS_API = os.getenv("TIKTOK_VIDEO_STATS_API", "https://tiktok-api.tokcounter.com/video/stats").removesuffix("/")
 
 YOUTUBE_CHANNEL_SEARCH_API = os.getenv("YOUTUBE_CHANNEL_SEARCH_API", "https://api.livecounts.io/youtube-live-subscriber-counter/search").removesuffix("/")
 YOUTUBE_VIDEO_SEARCH_API = os.getenv("YOUTUBE_VIDEO_SEARCH_API", "https://api.livecounts.io/youtube-live-view-counter/search").removesuffix("/")
@@ -61,7 +61,7 @@ async_http_client = __get_httpx_async_client()
 warnings.simplefilter("ignore", httpx.NetworkError)
 
 @lru_cache(maxsize=128)
-def __get_default_header(timestamp_ms: int) -> dict[str, str]:
+def __get_default_header(timestamp_ms: int, is_tiktok: bool = False) -> dict[str, str]:
     x_ajay = timestamp_ms
     try:
         h = RIPEMD160.new()
@@ -72,7 +72,7 @@ def __get_default_header(timestamp_ms: int) -> dict[str, str]:
         
     x_midas = hashlib.sha384(hashlib.sha256(str(x_ajay + 64).encode()).hexdigest().encode()).hexdigest()
     
-    return {
+    headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Origin": "https://livecounts.io",
@@ -81,11 +81,21 @@ def __get_default_header(timestamp_ms: int) -> dict[str, str]:
         "X-Catto": x_catto,
         "X-Midas": x_midas,
     }
+    
+    if is_tiktok:
+        # TikTok (tokcounter) uses x-catto as timestamp
+        headers["X-Catto"] = str(timestamp_ms)
+        # x-ajay and x-midas for tokcounter seem to be different hashes
+        headers["X-Ajay"] = hashlib.sha1(str(timestamp_ms).encode()).hexdigest()
+        headers["X-Midas"] = hashlib.sha256(str(timestamp_ms + 100).encode()).hexdigest()
+        
+    return headers
 
 def send_request(url: str) -> dict[str, Any]:
     try:
+        is_tiktok = "tokcounter.com" in url
         now_ms = int(datetime.now().timestamp() * 1000)
-        response = http_client.get(url=url, headers=__get_default_header(now_ms))
+        response = http_client.get(url=url, headers=__get_default_header(now_ms, is_tiktok))
         if response.status_code != 200:
             raise RequestApiError(f"Status: {response.status_code}")
         data = msgspec.json.decode(response.content)
@@ -97,8 +107,9 @@ def send_request(url: str) -> dict[str, Any]:
 
 async def async_send_request(url: str) -> dict[str, Any]:
     try:
+        is_tiktok = "tokcounter.com" in url
         now_ms = int(datetime.now().timestamp() * 1000)
-        response = await async_http_client.get(url=url, headers=__get_default_header(now_ms))
+        response = await async_http_client.get(url=url, headers=__get_default_header(now_ms, is_tiktok))
         if response.status_code != 200:
             raise RequestApiError(f"Status: {response.status_code}")
         data = msgspec.json.decode(response.content)
@@ -121,131 +132,65 @@ class TiktokAgent:
         return [TiktokUser(i.get("userId", ""), i.get("id", ""), i.get("username", ""), i.get("avatar", ""), i.get("verified", False)) for i in data.get("userData", [])]
     
     @staticmethod
-    async def find_user_async(query: str) -> list[TiktokUser]:
-        data = await async_send_request(f"{TIKTOK_USER_SEARCH_API}/{query}")
-        return [TiktokUser(i.get("userId", ""), i.get("id", ""), i.get("username", ""), i.get("avatar", ""), i.get("verified", False)) for i in data.get("userData", [])]
-
-    @staticmethod
     def fetch_user_metrics(query: str):
         m = send_request(f"{TIKTOK_USER_STATS_API}/{query}")
         return {"followers": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "following": m.get("followingCount", 0), "videos": m.get("videoCount", 0)}
 
     @staticmethod
-    async def fetch_user_metrics_async(query: str):
-        m = await async_send_request(f"{TIKTOK_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "following": m.get("followingCount", 0), "videos": m.get("videoCount", 0)}
-
-    @staticmethod
-    def fetch_video_data(query: str):
-        data = send_request(f"{TIKTOK_VIDEO_SEARCH_API}/{query}")
-        return data
-
-    @staticmethod
     def fetch_video_stats(query: str):
         m = send_request(f"{TIKTOK_VIDEO_STATS_API}/{query}")
-        return {"views": m.get("viewCount", 0), "likes": m.get("likeCount", 0), "comments": m.get("commentCount", 0), "shares": m.get("shareCount", 0)}
+        return {"views": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "comments": m.get("videoCount", 0), "shares": m.get("followingCount", 0)}
 
 class YoutubeAgent:
     @staticmethod
     def find_channel(query: str):
-        data = send_request(f"{YOUTUBE_CHANNEL_SEARCH_API}/{query}").get("userData", [])
-        return [{"id": i.get("id", ""), "name": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data]
-
-    @staticmethod
-    async def find_channel_async(query: str):
-        data = await async_send_request(f"{YOUTUBE_CHANNEL_SEARCH_API}/{query}")
-        return [{"id": i.get("id", ""), "name": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data.get("userData", [])]
-
-    @staticmethod
-    def fetch_channel_metrics(query: str):
-        m = send_request(f"{YOUTUBE_CHANNEL_STATS_API}/{query}")
-        return {"subscribers": m.get("followerCount", 0), "bottom": m.get("bottomOdos", [0, 0, 0])}
-
-    @staticmethod
-    async def fetch_channel_metrics_async(query: str):
-        m = await async_send_request(f"{YOUTUBE_CHANNEL_STATS_API}/{query}")
-        return {"subscribers": m.get("followerCount", 0), "bottom": m.get("bottomOdos", [0, 0, 0])}
-
+        data = send_request(f"{YOUTUBE_CHANNEL_SEARCH_API}/{query}")
+        return data.get("list", [])
+    
     @staticmethod
     def find_video(query: str):
-        data = send_request(f"{YOUTUBE_VIDEO_SEARCH_API}/{query}").get("userData", [])
-        return [{"id": i.get("id", ""), "name": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data]
-
-    @staticmethod
-    def fetch_video_metrics(query: str):
-        m = send_request(f"{YOUTUBE_VIDEO_STATS_API}/{query}")
-        return {"views": m.get("followerCount", 0), "bottom": m.get("bottomOdos", [0, 0, 0])}
+        data = send_request(f"{YOUTUBE_VIDEO_SEARCH_API}/{query}")
+        return data.get("list", [])
 
 class TwitterAgent:
     @staticmethod
     def find_user(query: str):
-        data = send_request(f"{TWITTER_USER_SEARCH_API}/{query}").get("userData", [])
-        return {"id": data[0]["id"], "username": data[0]["username"], "avatar": data[0]["avatar"]} if data else None
-
-    @staticmethod
-    async def find_user_async(query: str):
-        data = await async_send_request(f"{TWITTER_USER_SEARCH_API}/{query}")
-        u = data.get("userData", [])
-        return {"id": u[0]["id"], "username": u[0]["username"], "avatar": u[0]["avatar"]} if u else None
-
+        data = send_request(f"{TWITTER_USER_SEARCH_API}/{query}")
+        return data.get("list", [{}])[0] if data.get("list") else None
+    
     @staticmethod
     def fetch_user_metrics(query: str):
         m = send_request(f"{TWITTER_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0), "bottom": m.get("bottomOdos", [0, 0, 0])}
-
-    @staticmethod
-    async def fetch_user_metrics_async(query: str):
-        m = await async_send_request(f"{TWITTER_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0), "bottom": m.get("bottomOdos", [0, 0, 0])}
+        return {"followers": m.get("followerCount", 0)}
 
 class TwitchAgent:
     @staticmethod
     def find_user(query: str):
-        data = send_request(f"{TWITCH_USER_SEARCH_API}/{query}").get("userData", [])
-        return [{"id": i.get("id", ""), "username": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data]
-
-    @staticmethod
-    async def find_user_async(query: str):
-        data = await async_send_request(f"{TWITCH_USER_SEARCH_API}/{query}")
-        return [{"id": i.get("id", ""), "username": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data.get("userData", [])]
-
+        data = send_request(f"{TWITCH_USER_SEARCH_API}/{query}")
+        return data.get("list", [])
+    
     @staticmethod
     def fetch_user_metrics(query: str):
         m = send_request(f"{TWITCH_USER_STATS_API}/{query}")
         return {"followers": m.get("followerCount", 0)}
 
-    @staticmethod
-    async def fetch_user_metrics_async(query: str):
-        m = await async_send_request(f"{TWITCH_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0)}
-
 class KickAgent:
     @staticmethod
     def find_user(query: str):
-        data = send_request(f"{KICK_USER_SEARCH_API}/{query}").get("userData", [])
-        return [{"id": i.get("id", ""), "username": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data]
-
-    @staticmethod
-    async def find_user_async(query: str):
-        data = await async_send_request(f"{KICK_USER_SEARCH_API}/{query}")
-        return [{"id": i.get("id", ""), "username": i.get("username", ""), "avatar": i.get("avatar", "")} for i in data.get("userData", [])]
-
+        data = send_request(f"{KICK_USER_SEARCH_API}/{query}")
+        return data.get("list", [])
+    
     @staticmethod
     def fetch_user_metrics(query: str):
         m = send_request(f"{KICK_USER_STATS_API}/{query}")
         return {"followers": m.get("followerCount", 0)}
 
-    @staticmethod
-    async def fetch_user_metrics_async(query: str):
-        m = await async_send_request(f"{KICK_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0)}
-
 class LivecountsAPI:
     def __init__(self):
-        self.tiktok = TiktokAgent
-        self.youtube = YoutubeAgent
-        self.twitter = TwitterAgent
-        self.twitch = TwitchAgent
-        self.kick = KickAgent
+        self.tiktok = TiktokAgent()
+        self.youtube = YoutubeAgent()
+        self.twitter = TwitterAgent()
+        self.twitch = TwitchAgent()
+        self.kick = KickAgent()
 
 api = LivecountsAPI()
