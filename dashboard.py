@@ -18,11 +18,11 @@ CSS = (
     ".hero-title{font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:-4px;color:white;margin-bottom:0.5rem;line-height:1}"
     ".hero-subtitle{color:#404040;font-size:1.3rem;text-transform:uppercase;letter-spacing:6px;font-weight:400;margin-bottom:4rem}"
     ".search-card-container{max-width:900px;margin:0 auto;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:24px;padding:12px;box-shadow:0 30px 60px rgba(0,0,0,0.5)}"
-    ".dropdown-list{max-width:450px;margin:10px auto;background:#111;border:1px solid #262626;border-radius:16px;overflow:hidden;z-index:100;box-shadow:0 15px 30px rgba(0,0,0,0.8)}"
-    ".dropdown-item{display:flex;align-items:center;gap:12px;padding:10px 15px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid #1a1a1a}"
-    ".dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#1a1a1a}"
-    ".mini-avatar{width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #333}"
-    "div.stButton > button{width:100%!important;background:transparent!important;border:none!important;color:#fff!important;text-align:left!important;font-size:1rem!important;font-weight:600!important;padding:5px 0!important;text-transform:none!important}"
+    ".list-divider{border-top:1px solid #1f1f1f;margin:15px 0;width:100%}"
+    ".list-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #141414}"
+    ".mini-avatar{width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid #262626}"
+    "div.stButton > button{width:100%!important;background:transparent!important;border:none!important;color:#fff!important;text-align:left!important;font-size:1.1rem!important;font-weight:600!important;padding:10px 15px!important;text-transform:none!important}"
+    "div.stButton > button:hover{background:#0f0f0f!important}"
     ".dashboard-banner{width:100%;height:280px;background:linear-gradient(to bottom,#0a0a0a,#000);border-bottom:1px solid #1f1f1f;position:relative}"
     ".profile-overlay{width:140px;height:140px;border-radius:50%;border:6px solid #000;position:absolute;bottom:-70px;left:50%;transform:translateX(-50%);background:#171717;z-index:10}"
     ".dashboard-content{padding:100px 1rem 4rem;text-align:center}"
@@ -44,31 +44,23 @@ PLATFORMS = {
 }
 SLUG_TO_KEY = {v["slug"]: v["key"] for v in PLATFORMS.values()}
 
-# ──────────────────────────── STATE SYNC (PRETTY URL SUPPORT) ────────
+# ──────────────────────────── STATE SYNC ─────────────────────────────
 params = st.query_params
 u_val = params.get("u")
-p_val = params.get("p")
+target_uid, target_pk = None, "yt_subs"
 
-target_uid = None
-target_pk = "yt_subs"
-
-# Parse Composite URL (e.g. ?u=youtube-live-subscriber-counter/ID)
 if u_val and "/" in str(u_val):
-    parts = str(u_val).split("/")
-    slug, uid = parts[0], parts[1]
+    slug, uid = str(u_val).split("/")[:2]
     target_pk = SLUG_TO_KEY.get(slug, "yt_subs")
     target_uid = uid
-# Fallback to legacy ?u=ID&p=PLATFORM
 elif u_val:
     target_uid = u_val
-    target_pk = p_val if p_val in ["yt_subs", "yt_views", "tt_followers"] else "yt_subs"
+    target_pk = params.get("p", "yt_subs")
 
-# Initialize default session variables if missing
 defaults = {"user_id": None, "user_name": "", "user_avatar": "", "user_handle": "", "platform_key": "yt_subs", "history_values": [], "history_times": [], "show_results": False, "search_results": []}
 for k, v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
-# Update internal state if URL changed
 if st.session_state.user_id != target_uid:
     st.session_state.update(user_id=target_uid, platform_key=target_pk, user_name="", user_avatar="", user_handle="", history_values=[], history_times=[])
 
@@ -102,7 +94,6 @@ def clear_all():
 
 # ──────────────────────────── UI ─────────────────────────────────────
 if st.session_state.user_id:
-    # Metadata Discovery
     if not st.session_state.user_handle:
         try:
             pk = st.session_state.platform_key
@@ -121,16 +112,10 @@ if st.session_state.user_id:
     count = res["main"]
     st.session_state.history_times.append(datetime.now().strftime("%H:%M:%S"))
     st.session_state.history_values.append(count)
-    if len(st.session_state.history_times) > 100: 
-        st.session_state.history_times = st.session_state.history_times[-100:]
-        st.session_state.history_values = st.session_state.history_values[-100:]
-
-    st.markdown(f'<div class="dashboard-banner"><img src="{st.session_state.user_avatar}" class="profile-overlay" /></div>', unsafe_allow_html=True)
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+    st.markdown(f'<div class="dashboard-banner"><img src="{st.session_state.user_avatar}" class="profile-overlay" /></div><div class="main-container"><div class="dashboard-content">', unsafe_allow_html=True)
     
-    # IDENTITY: Always start with @
     display_handle = f"@{st.session_state.user_handle or st.session_state.user_name}".replace("@@", "@")
-    st.markdown(f'<div class="dashboard-content"><h1 style="color:white;font-size:3.5rem;font-weight:800;margin-bottom:0.1rem;">{display_handle}</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:white;font-size:3.5rem;font-weight:800;margin-bottom:0.1rem;">{display_handle}</h1>', unsafe_allow_html=True)
     st.markdown(f'<div style="color:#ef4444;font-size:1.5rem;margin-bottom:3rem;"><span class="material-symbols-rounded">verified</span></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="main-count">{fmt(count)}</div>', unsafe_allow_html=True)
     pinfo = [v for k,v in PLATFORMS.items() if v["key"]==st.session_state.platform_key][0]
@@ -149,9 +134,7 @@ if st.session_state.user_id:
         fig.update_layout(height=450, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="#000", plot_bgcolor="#000", font=dict(family="Outfit", color="#525252"), xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=True, gridcolor="#141414", zeroline=False, tickformat=","))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     
-    st.markdown('<div style="margin-top:4rem;text-align:center;">', unsafe_allow_html=True)
-    st.button("⬅️ BUSCAR NUEVO", type="primary", on_click=clear_all)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top:4rem;text-align:center;">', unsafe_allow_html=True); st.button("⬅️ BUSCAR NUEVO", type="primary", on_click=clear_all); st.markdown('</div></div></div>', unsafe_allow_html=True)
     time.sleep(2); st.rerun()
 
 else:
@@ -166,33 +149,34 @@ else:
             if h_q:
                 pk = PLATFORMS[h_pk_label]["key"]
                 try:
-                    if pk.startswith("yt"): res = (api.youtube.find_channel(h_q) if pk=="yt_subs" else api.youtube.find_video(h_q))
-                    else: res = api.tiktok.find_user(h_q)
+                    res = (api.youtube.find_channel(h_q) if pk=="yt_subs" else api.youtube.find_video(h_q)) if pk.startswith("yt") else api.tiktok.find_user(h_q)
                     st.session_state.update(search_results=res, show_results=True, platform_key=pk); st.rerun()
                 except Exception as e: st.error(f"Error: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
     
     if st.session_state.show_results:
-        if not st.session_state.search_results:
-            st.warning("No se hallaron resultados.")
-        else:
-            with st.container():
-                st.markdown('<div class="dropdown-list">', unsafe_allow_html=True)
+        st.markdown('<div style="max-width:900px;margin:30px auto 0 auto;padding:0 12px;">', unsafe_allow_html=True)
+        # Match column indices for PERFECT alignment under the search input
+        _, list_col, _ = st.columns([1.2, 2.5, 1])
+        with list_col:
+            st.markdown('<div class="list-divider"></div>', unsafe_allow_html=True)
+            if not st.session_state.search_results:
+                st.warning("No se hallaron resultados.")
+            else:
                 for i, r in enumerate(st.session_state.search_results):
                     rid = r.get("id", r.get("userId", ""))
-                    rname = r.get("name", rid)
-                    rhandle = r.get("handle", r.get("username", rname))
                     ravatar = r.get("avatar", r.get("thumbnail", ""))
-                    h_label = f"@{rhandle or rname}".replace("@@", "@")
+                    h_label = f"@{r.get('handle', r.get('username', r.get('name', rid)))}".replace("@@", "@")
                     
-                    st.markdown(f'<div class="dropdown-item"><img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
-                    if st.button(h_label, key=f"drp_{i}"):
-                        # PRETTY URL MOCKUP: ?u=platform-slug/USER_ID
-                        slug = [v["slug"] for v in PLATFORMS.values() if v["key"] == st.session_state.platform_key][0]
-                        st.query_params.update(u=f"{slug}/{rid}")
-                        st.session_state.update(user_id=rid, user_name=rname, user_avatar=ravatar, user_handle=rhandle, show_results=False, history_values=[], history_times=[])
-                        st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-    
+                    # Layout: Square Image + @Handle side-by-side
+                    l0, l1 = st.columns([0.18, 0.82])
+                    with l0: st.markdown(f'<img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
+                    with l1:
+                        if st.button(h_label, key=f"sel_{i}"):
+                            slug = [v["slug"] for v in PLATFORMS.values() if v["key"] == st.session_state.platform_key][0]
+                            st.query_params.update(u=f"{slug}/{rid}")
+                            st.session_state.update(user_id=rid, user_name=r.get("name", rid), user_avatar=ravatar, user_handle=r.get("handle", ""), show_results=False, history_values=[], history_times=[])
+                            st.rerun()
+                    st.markdown('<div style="border-bottom:1px solid #141414;margin:8px 0;"></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div></div>', unsafe_allow_html=True)
