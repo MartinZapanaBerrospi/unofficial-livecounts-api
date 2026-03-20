@@ -38,25 +38,39 @@ st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?fam
 
 # ──────────────────────────── PLATFORMS ──────────────────────────────
 PLATFORMS = {
-    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#ef4444", "icon": "subscriptions", "label": "Subscribers"},
-    "🔴 YouTube Views": {"key": "yt_views", "color": "#ef4444", "icon": "video_library", "label": "Views"},
-    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00f2ea", "icon": "music_note", "label": "Followers"},
+    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#ef4444", "icon": "subscriptions", "label": "Subscribers", "slug": "youtube-live-subscriber-counter"},
+    "🔴 YouTube Views": {"key": "yt_views", "color": "#ef4444", "icon": "video_library", "label": "Views", "slug": "youtube-live-view-counter"},
+    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00f2ea", "icon": "music_note", "label": "Followers", "slug": "tiktok-live-follower-counter"},
 }
+SLUG_TO_KEY = {v["slug"]: v["key"] for v in PLATFORMS.values()}
 
-# ──────────────────────────── STATE SYNC (FIX FOR BROWSER BUTTONS) ───
+# ──────────────────────────── STATE SYNC (PRETTY URL SUPPORT) ────────
 params = st.query_params
-# CRITICAL: Always sync state with URL to respect Back/Forward buttons
-uid_param = params.get("u")
-pk_param = params.get("p", "yt_subs")
+u_val = params.get("u")
+p_val = params.get("p")
+
+target_uid = None
+target_pk = "yt_subs"
+
+# Parse Composite URL (e.g. ?u=youtube-live-subscriber-counter/ID)
+if u_val and "/" in str(u_val):
+    parts = str(u_val).split("/")
+    slug, uid = parts[0], parts[1]
+    target_pk = SLUG_TO_KEY.get(slug, "yt_subs")
+    target_uid = uid
+# Fallback to legacy ?u=ID&p=PLATFORM
+elif u_val:
+    target_uid = u_val
+    target_pk = p_val if p_val in ["yt_subs", "yt_views", "tt_followers"] else "yt_subs"
 
 # Initialize default session variables if missing
 defaults = {"user_id": None, "user_name": "", "user_avatar": "", "user_handle": "", "platform_key": "yt_subs", "history_values": [], "history_times": [], "show_results": False, "search_results": []}
 for k, v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
-# Update internal state if URL changed (e.g. user pressed Back)
-if st.session_state.user_id != uid_param:
-    st.session_state.update(user_id=uid_param, platform_key=pk_param, user_name="", user_avatar="", user_handle="", history_values=[], history_times=[])
+# Update internal state if URL changed
+if st.session_state.user_id != target_uid:
+    st.session_state.update(user_id=target_uid, platform_key=target_pk, user_name="", user_avatar="", user_handle="", history_values=[], history_times=[])
 
 # ──────────────────────────── HELPERS ────────────────────────────────
 def fmt(n): return f"{int(n):,}".replace(",", ".")
@@ -88,7 +102,7 @@ def clear_all():
 
 # ──────────────────────────── UI ─────────────────────────────────────
 if st.session_state.user_id:
-    # Metadata Discovery if missing
+    # Metadata Discovery
     if not st.session_state.user_handle:
         try:
             pk = st.session_state.platform_key
@@ -145,12 +159,12 @@ else:
     
     st.markdown('<div class="search-card-container">', unsafe_allow_html=True)
     c0, c1, c2 = st.columns([1.2, 2.5, 1])
-    with c0: h_pk = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
+    with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
     with c1: h_q = st.text_input("Q", placeholder="Buscar canal o video...", key="h_q", label_visibility="collapsed")
     with c2: 
         if st.button("BUSCAR ⚡", use_container_width=True, type="primary"):
             if h_q:
-                pk = PLATFORMS[h_pk]["key"]
+                pk = PLATFORMS[h_pk_label]["key"]
                 try:
                     if pk.startswith("yt"): res = (api.youtube.find_channel(h_q) if pk=="yt_subs" else api.youtube.find_video(h_q))
                     else: res = api.tiktok.find_user(h_q)
@@ -173,7 +187,9 @@ else:
                     
                     st.markdown(f'<div class="dropdown-item"><img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
                     if st.button(h_label, key=f"drp_{i}"):
-                        st.query_params.update(u=rid, p=st.session_state.platform_key)
+                        # PRETTY URL MOCKUP: ?u=platform-slug/USER_ID
+                        slug = [v["slug"] for v in PLATFORMS.values() if v["key"] == st.session_state.platform_key][0]
+                        st.query_params.update(u=f"{slug}/{rid}")
                         st.session_state.update(user_id=rid, user_name=rname, user_avatar=ravatar, user_handle=rhandle, show_results=False, history_values=[], history_times=[])
                         st.rerun()
                     st.markdown('</div>', unsafe_allow_html=True)
