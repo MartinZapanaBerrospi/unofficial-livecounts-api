@@ -10,7 +10,7 @@ from unofficial_livecounts_api import (
 # ──────────────────────────── Page Config ────────────────────────────
 st.set_page_config(page_title="Livecounts Elite", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
 
-# ──────────────────────────── DROPDOWN LIST CSS ───────────────────
+# ──────────────────────────── CSS (SaaS Dropdown & Premium Look) ───────────────────
 CSS = (
     "font-family:'Outfit',sans-serif;.stApp{background:#000}"
     "#MainMenu,footer,header{visibility:hidden}.main-container{padding:0;max-width:1100px;margin:0 auto}"
@@ -22,7 +22,7 @@ CSS = (
     ".dropdown-item{display:flex;align-items:center;gap:12px;padding:10px 15px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid #1a1a1a}"
     ".dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#1a1a1a}"
     ".mini-avatar{width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #333}"
-    ".mini-handle{color:#fff;font-weight:600;font-size:1rem;text-transform:none}"
+    "div.stButton > button{width:100%!important;background:transparent!important;border:none!important;color:#fff!important;text-align:left!important;font-size:1rem!important;font-weight:600!important;padding:5px 0!important;text-transform:none!important}"
     ".dashboard-banner{width:100%;height:280px;background:linear-gradient(to bottom,#0a0a0a,#000);border-bottom:1px solid #1f1f1f;position:relative}"
     ".profile-overlay{width:140px;height:140px;border-radius:50%;border:6px solid #000;position:absolute;bottom:-70px;left:50%;transform:translateX(-50%);background:#171717;z-index:10}"
     ".dashboard-content{padding:100px 1rem 4rem;text-align:center}"
@@ -35,6 +35,28 @@ CSS = (
     ".metric-title .material-symbols-rounded{font-size:1.4rem;color:#ef4444}"
 )
 st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,700,0,0' /><style>{CSS}</style>", unsafe_allow_html=True)
+
+# ──────────────────────────── PLATFORMS ──────────────────────────────
+PLATFORMS = {
+    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#ef4444", "icon": "subscriptions", "label": "Subscribers"},
+    "🔴 YouTube Views": {"key": "yt_views", "color": "#ef4444", "icon": "video_library", "label": "Views"},
+    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00f2ea", "icon": "music_note", "label": "Followers"},
+}
+
+# ──────────────────────────── STATE SYNC (FIX FOR BROWSER BUTTONS) ───
+params = st.query_params
+# CRITICAL: Always sync state with URL to respect Back/Forward buttons
+uid_param = params.get("u")
+pk_param = params.get("p", "yt_subs")
+
+# Initialize default session variables if missing
+defaults = {"user_id": None, "user_name": "", "user_avatar": "", "user_handle": "", "platform_key": "yt_subs", "history_values": [], "history_times": [], "show_results": False, "search_results": []}
+for k, v in defaults.items():
+    if k not in st.session_state: st.session_state[k] = v
+
+# Update internal state if URL changed (e.g. user pressed Back)
+if st.session_state.user_id != uid_param:
+    st.session_state.update(user_id=uid_param, platform_key=pk_param, user_name="", user_avatar="", user_handle="", history_values=[], history_times=[])
 
 # ──────────────────────────── HELPERS ────────────────────────────────
 def fmt(n): return f"{int(n):,}".replace(",", ".")
@@ -60,32 +82,13 @@ def fetch_live_data(uid, pk):
             return {"main": m["followers"], "extra": [{"v": m["likes"], "l": "Likes", "i": "favorite"}, {"v": m["following"], "l": "Following", "i": "group"}, {"v": m["videos"], "l": "Videos", "i": "video_library"}]}
     except Exception as e: return {"error": f"Connection Lost: {e}"}
 
-# ──────────────────────────── STATE ──────────────────────────────────
-params = st.query_params
-if "user_id" not in st.session_state:
-    st.session_state.user_id = params.get("u")
-    st.session_state.platform_key = params.get("p", "yt_subs")
-    st.session_state.user_name = ""
-    st.session_state.user_avatar = ""
-    st.session_state.user_handle = ""
-
-defaults = {"user_id": None, "user_name": "", "user_avatar": "", "user_handle": "", "platform_key": "yt_subs", "history_values": [], "history_times": [], "show_results": False, "search_results": []}
-for k, v in defaults.items():
-    if k not in st.session_state: st.session_state[k] = v
-
 def clear_all():
     st.session_state.update(user_id=None, show_results=False, history_values=[], history_times=[])
     st.query_params.clear()
 
 # ──────────────────────────── UI ─────────────────────────────────────
-PLATFORMS = {
-    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#ef4444", "icon": "subscriptions", "label": "Subscribers"},
-    "🔴 YouTube Views": {"key": "yt_views", "color": "#ef4444", "icon": "video_library", "label": "Views"},
-    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00f2ea", "icon": "music_note", "label": "Followers"},
-}
-
 if st.session_state.user_id:
-    # AUTO-DISCOVERY Metadata check if returning from URL
+    # Metadata Discovery if missing
     if not st.session_state.user_handle:
         try:
             pk = st.session_state.platform_key
@@ -111,8 +114,8 @@ if st.session_state.user_id:
     st.markdown(f'<div class="dashboard-banner"><img src="{st.session_state.user_avatar}" class="profile-overlay" /></div>', unsafe_allow_html=True)
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
-    # IDENTITY: Always start with @ as requested
-    display_handle = f"@{st.session_state.user_handle or st.session_state.user_name}"
+    # IDENTITY: Always start with @
+    display_handle = f"@{st.session_state.user_handle or st.session_state.user_name}".replace("@@", "@")
     st.markdown(f'<div class="dashboard-content"><h1 style="color:white;font-size:3.5rem;font-weight:800;margin-bottom:0.1rem;">{display_handle}</h1>', unsafe_allow_html=True)
     st.markdown(f'<div style="color:#ef4444;font-size:1.5rem;margin-bottom:3rem;"><span class="material-symbols-rounded">verified</span></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="main-count">{fmt(count)}</div>', unsafe_allow_html=True)
@@ -155,7 +158,6 @@ else:
                 except Exception as e: st.error(f"Error: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # DROPDOWN LIST (Compact & Dividend-separated)
     if st.session_state.show_results:
         if not st.session_state.search_results:
             st.warning("No se hallaron resultados.")
@@ -167,11 +169,8 @@ else:
                     rname = r.get("name", rid)
                     rhandle = r.get("handle", r.get("username", rname))
                     ravatar = r.get("avatar", r.get("thumbnail", ""))
+                    h_label = f"@{rhandle or rname}".replace("@@", "@")
                     
-                    # IDENTITY: Start with @
-                    h_label = f"@{rhandle}" if rhandle else f"@{rname}"
-                    
-                    # We use a horizontal layout with a small button for each dropdown item
                     st.markdown(f'<div class="dropdown-item"><img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
                     if st.button(h_label, key=f"drp_{i}"):
                         st.query_params.update(u=rid, p=st.session_state.platform_key)
