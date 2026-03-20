@@ -11,6 +11,7 @@ import httpx
 import msgspec
 import validators
 from Crypto.Hash import RIPEMD160
+from urllib.parse import quote
 from latest_user_agents import get_random_user_agent
 from dotenv import load_dotenv
 
@@ -126,30 +127,25 @@ class TiktokUser:
         self.user_id, self.username, self.display_name, self.thumbnail, self.verified = user_id, username, display_name, thumbnail, verified
 
 class TiktokAgent:
-    @staticmethod
-    def find_user(query: str) -> list[TiktokUser]:
-        data = send_request(f"{TIKTOK_USER_SEARCH_API}/{query}")
+    def find_user(self, query: str) -> list[TiktokUser]:
+        data = send_request(f"{TIKTOK_USER_SEARCH_API}/{quote(query)}")
         return [TiktokUser(i.get("userId", ""), i.get("id", ""), i.get("username", ""), i.get("avatar", ""), i.get("verified", False)) for i in data.get("userData", [])]
     
-    @staticmethod
-    def fetch_user_metrics(query: str):
-        m = send_request(f"{TIKTOK_USER_STATS_API}/{query}")
+    def fetch_user_metrics(self, query: str):
+        m = send_request(f"{TIKTOK_USER_STATS_API}/{quote(query)}")
         return {"followers": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "following": m.get("followingCount", 0), "videos": m.get("videoCount", 0)}
 
-    @staticmethod
-    def fetch_video_stats(query: str):
-        m = send_request(f"{TIKTOK_VIDEO_STATS_API}/{query}")
+    def fetch_video_stats(self, query: str):
+        m = send_request(f"{TIKTOK_VIDEO_STATS_API}/{quote(query)}")
         return {"views": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "comments": m.get("videoCount", 0), "shares": m.get("followingCount", 0)}
 
 class YoutubeAgent:
-    @staticmethod
-    def find_channel(query: str):
-        data = send_request(f"{YOUTUBE_CHANNEL_SEARCH_API}/{query}")
+    def find_channel(self, query: str):
+        data = send_request(f"{YOUTUBE_CHANNEL_SEARCH_API}/{quote(query)}")
         return data.get("list", [])
     
-    @staticmethod
-    def find_video(query: str):
-        data = send_request(f"{YOUTUBE_VIDEO_SEARCH_API}/{query}")
+    def find_video(self, query: str):
+        data = send_request(f"{YOUTUBE_VIDEO_SEARCH_API}/{quote(query)}")
         return data.get("list", [])
 
 class TwitterAgent:
