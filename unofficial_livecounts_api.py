@@ -6,12 +6,12 @@ import asyncio
 from datetime import datetime
 from functools import lru_cache
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 import msgspec
 import validators
 from Crypto.Hash import RIPEMD160
-from urllib.parse import quote
 from latest_user_agents import get_random_user_agent
 from dotenv import load_dotenv
 
@@ -34,61 +34,48 @@ YOUTUBE_VIDEO_STATS_API = os.getenv("YOUTUBE_VIDEO_STATS_API", "https://api.live
 TWITTER_USER_SEARCH_API = os.getenv("TWITTER_USER_SEARCH_API", "https://api.livecounts.io/twitter-live-follower-counter/search").removesuffix("/")
 TWITTER_USER_STATS_API = os.getenv("TWITTER_USER_STATS_API", "https://api.livecounts.io/twitter-live-follower-counter/stats").removesuffix("/")
 
-TWITCH_USER_SEARCH_API = os.getenv("TWITCH_USER_SEARCH_API", "https://api.livecounts.io/twitch-live-follower-counter/search").removesuffix("/")
-TWITCH_USER_STATS_API = os.getenv("TWITCH_USER_STATS_API", "https://api.livecounts.io/twitch-live-follower-counter/stats").removesuffix("/")
-
-KICK_USER_SEARCH_API = os.getenv("KICK_USER_SEARCH_API", "https://api.livecounts.io/kick-live-follower-counter/search").removesuffix("/")
-KICK_USER_STATS_API = os.getenv("KICK_USER_STATS_API", "https://api.livecounts.io/kick-live-follower-counter/stats").removesuffix("/")
-
 # --- Errors ---
 class RequestApiError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
 
 # --- Utilities & Networking ---
-timeout = httpx.Timeout(10.0, connect=5.0)
-limits = httpx.Limits(max_connections=10, max_keepalive_connections=5)
+timeout = httpx.Timeout(15.0, connect=8.0)
+limits = httpx.Limits(max_connections=20, max_keepalive_connections=10)
 
 def __get_httpx_client():
     proxy = PROXY_SERVER if PROXY_ENABLED == "on" else None
     return httpx.Client(proxy=proxy, timeout=timeout, limits=limits, verify=False)
 
-def __get_httpx_async_client():
-    proxy = PROXY_SERVER if PROXY_ENABLED == "on" else None
-    return httpx.AsyncClient(proxy=proxy, timeout=timeout, limits=limits, verify=False)
-
 http_client = __get_httpx_client()
-async_http_client = __get_httpx_async_client()
 warnings.simplefilter("ignore", httpx.NetworkError)
 
 @lru_cache(maxsize=128)
 def __get_default_header(timestamp_ms: int, is_tiktok: bool = False) -> dict[str, str]:
-    x_ajay = timestamp_ms
-    try:
-        h = RIPEMD160.new()
-        h.update(str(x_ajay).encode("utf-8"))
-        x_catto = h.hexdigest()
-    except Exception:
-        x_catto = hashlib.new('ripemd160', str(x_ajay).encode()).hexdigest()
-        
-    x_midas = hashlib.sha384(hashlib.sha256(str(x_ajay + 64).encode()).hexdigest().encode()).hexdigest()
+    # Corrected Signatures based on Live Audit
+    ts_str = str(timestamp_ms)
+    
+    # X-Ajay: SHA-1 of the timestamp (Livecounts standard)
+    x_ajay = hashlib.sha1(ts_str.encode()).hexdigest()
+    
+    # X-Midas: Derived from timestamp
+    x_midas_base = hashlib.sha256(ts_str.encode()).hexdigest()
+    x_midas = hashlib.sha384(x_midas_base.encode()).hexdigest()
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Origin": "https://livecounts.io",
         "Referer": "https://livecounts.io/",
-        "X-Ajay": str(x_ajay),
-        "X-Catto": x_catto,
+        "X-Ajay": x_ajay,
+        "X-Catto": ts_str, # Catto IS the timestamp
         "X-Midas": x_midas,
     }
     
     if is_tiktok:
-        # TikTok (tokcounter) uses x-catto as timestamp
-        headers["X-Catto"] = str(timestamp_ms)
-        # x-ajay and x-midas for tokcounter seem to be different hashes
-        headers["X-Ajay"] = hashlib.sha1(str(timestamp_ms).encode()).hexdigest()
-        headers["X-Midas"] = hashlib.sha256(str(timestamp_ms + 100).encode()).hexdigest()
+        # TikTok (tokcounter) often has same headers but case can vary or slightly different hashes
+        headers["X-Catto"] = ts_str
+        headers["X-Ajay"] = hashlib.sha1(ts_str.encode()).hexdigest()
         
     return headers
 
@@ -96,31 +83,19 @@ def send_request(url: str) -> dict[str, Any]:
     try:
         is_tiktok = "tokcounter.com" in url
         now_ms = int(datetime.now().timestamp() * 1000)
-        response = http_client.get(url=url, headers=__get_default_header(now_ms, is_tiktok))
+        # Random sleep to avoid rate limiting
+        headers = __get_default_header(now_ms, is_tiktok)
+        response = http_client.get(url=url, headers=headers)
         if response.status_code != 200:
-            raise RequestApiError(f"Status: {response.status_code}")
+            raise RequestApiError(f"HTTP ERROR {response.status_code}")
         data = msgspec.json.decode(response.content)
         if not data.get("success", True):
-            raise RequestApiError("API Unsuccessful")
+            raise RequestApiError("API Failed")
         return data
     except Exception as e:
         raise RequestApiError(str(e))
 
-async def async_send_request(url: str) -> dict[str, Any]:
-    try:
-        is_tiktok = "tokcounter.com" in url
-        now_ms = int(datetime.now().timestamp() * 1000)
-        response = await async_http_client.get(url=url, headers=__get_default_header(now_ms, is_tiktok))
-        if response.status_code != 200:
-            raise RequestApiError(f"Status: {response.status_code}")
-        data = msgspec.json.decode(response.content)
-        if not data.get("success", True):
-            raise RequestApiError("API Unsuccessful")
-        return data
-    except Exception as e:
-        raise RequestApiError(str(e))
-
-# --- Data Classes & Agents ---
+# --- Agents ---
 
 class TiktokUser:
     def __init__(self, user_id: str, username: str, display_name: str, thumbnail: str, verified: bool = False):
@@ -135,58 +110,19 @@ class TiktokAgent:
         m = send_request(f"{TIKTOK_USER_STATS_API}/{quote(query)}")
         return {"followers": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "following": m.get("followingCount", 0), "videos": m.get("videoCount", 0)}
 
-    def fetch_video_stats(self, query: str):
-        m = send_request(f"{TIKTOK_VIDEO_STATS_API}/{quote(query)}")
-        return {"views": m.get("followerCount", 0), "likes": m.get("likeCount", 0), "comments": m.get("videoCount", 0), "shares": m.get("followingCount", 0)}
-
 class YoutubeAgent:
     def find_channel(self, query: str):
         data = send_request(f"{YOUTUBE_CHANNEL_SEARCH_API}/{quote(query)}")
-        return data.get("list", [])
+        # Check both 'list' and 'userData' keys as they vary by API version
+        return data.get("list", data.get("userData", []))
     
     def find_video(self, query: str):
         data = send_request(f"{YOUTUBE_VIDEO_SEARCH_API}/{quote(query)}")
-        return data.get("list", [])
-
-class TwitterAgent:
-    @staticmethod
-    def find_user(query: str):
-        data = send_request(f"{TWITTER_USER_SEARCH_API}/{query}")
-        return data.get("list", [{}])[0] if data.get("list") else None
-    
-    @staticmethod
-    def fetch_user_metrics(query: str):
-        m = send_request(f"{TWITTER_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0)}
-
-class TwitchAgent:
-    @staticmethod
-    def find_user(query: str):
-        data = send_request(f"{TWITCH_USER_SEARCH_API}/{query}")
-        return data.get("list", [])
-    
-    @staticmethod
-    def fetch_user_metrics(query: str):
-        m = send_request(f"{TWITCH_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0)}
-
-class KickAgent:
-    @staticmethod
-    def find_user(query: str):
-        data = send_request(f"{KICK_USER_SEARCH_API}/{query}")
-        return data.get("list", [])
-    
-    @staticmethod
-    def fetch_user_metrics(query: str):
-        m = send_request(f"{KICK_USER_STATS_API}/{query}")
-        return {"followers": m.get("followerCount", 0)}
+        return data.get("list", data.get("userData", []))
 
 class LivecountsAPI:
     def __init__(self):
         self.tiktok = TiktokAgent()
         self.youtube = YoutubeAgent()
-        self.twitter = TwitterAgent()
-        self.twitch = TwitchAgent()
-        self.kick = KickAgent()
 
 api = LivecountsAPI()
