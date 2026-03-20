@@ -10,7 +10,7 @@ from unofficial_livecounts_api import (
 # ──────────────────────────── Page Config ────────────────────────────
 st.set_page_config(page_title="Livecounts Elite", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
 
-# ──────────────────────────── CSS (v7.0: Hyper-SaaS Glassmorphism) ───────────────────
+# ──────────────────────────── CSS (v7.2: Glitch Fix & SaaS Polish) ───────────────────
 CSS = (
     "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap');"
     
@@ -28,28 +28,23 @@ CSS = (
     ".hero-title { font-size: clamp(3.5rem, 9.5vw, 7rem); font-weight: 900; letter-spacing: -6px; color: #fff; margin-bottom: 0.2rem; line-height: 0.85; text-shadow: 0 0 50px rgba(255,255,255,0.05); }"
     ".hero-subtitle { color: #94a3b8; font-size: 1rem; text-transform: uppercase; letter-spacing: 10px; font-weight: 700; margin-bottom: 5rem; opacity: 0.8; }"
     
-    # Glassmorphism Box (Search Card)
-    ".search-card-container { "
-    "   max-width: 900px; margin: 0 auto; "
-    "   background: rgba(15, 23, 42, 0.4); "
-    "   backdrop-filter: blur(24px) saturate(180%); "
-    "   border: 1px solid rgba(255, 255, 255, 0.08); "
-    "   border-top: 1px solid rgba(255, 255, 255, 0.15); "
-    "   border-radius: 32px; padding: 18px; "
-    "   box-shadow: 0 40px 120px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.03); "
-    "}"
+    # Glassmorphism Box (Search Card Container Concept)
+    ".search-row-container { max-width: 900px; margin: 0 auto; }"
     
-    # SaaS Input Overrides
-    "div[data-baseweb='select'] > div { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important; }"
-    "input { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; color: #fff !important; padding: 14px 22px !important; font-size: 1rem !important; transition: all 0.3s ease !important; }"
-    "input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important; }"
+    # SaaS Input Overrides (FIXED TARGETING)
+    "div[data-baseweb='select'] > div { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important; height: 52px !important; }"
+    "div[data-testid='stTextInput'] input { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; color: #fff !important; padding: 12px 18px !important; font-size: 1rem !important; height: 52px !important; transition: all 0.3s ease !important; }"
+    "div[data-testid='stTextInput'] input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important; }"
+    
+    # FIX for st.selectbox internal input (the "ghost box" in the dropdown)
+    "div[data-baseweb='select'] input { padding: 0 !important; width: 0 !important; height: 0 !important; background: transparent !important; border: none !important; }"
     
     # Gradient Buttons (The "Wow" Factor)
     "div.stButton > button { "
     "   width: 100% !important; border: 1px solid rgba(255,255,255,0.08) !important; "
     "   background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%) !important; "
-    "   color: #cbd5e1 !important; border-radius: 14px !important; "
-    "   text-align: left !important; font-size: 1.1rem !important; font-weight: 600 !important; padding: 12px 20px !important; "
+    "   color: #cbd5e1 !important; border-radius: 14px !important; height: 52px !important; "
+    "   text-align: left !important; font-size: 1.1rem !important; font-weight: 600 !important; padding: 0 20px !important; "
     "   text-transform: none !important; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important; "
     "   box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important; "
     "}"
@@ -58,16 +53,11 @@ CSS = (
     "   transform: translateY(-2px) !important; box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; "
     "   border-color: rgba(255,255,255,0.2) !important; "
     "}"
-    "div.stButton > button:active { transform: translateY(0px) !important; }"
     
     # Primary Call-to-Action
     "button[kind='primary'] { "
     "   background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important; "
-    "   border: none !important; color: #fff !important; font-weight: 800 !important; letter-spacing: 1px !important; "
-    "}"
-    "button[kind='primary']:hover { "
-    "   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important; "
-    "   box-shadow: 0 0 25px rgba(37, 99, 235, 0.4) !important; "
+    "   border: none !important; color: #fff !important; font-weight: 800 !important; letter-spacing: 1px !important; text-align: center !important; "
     "}"
     
     # Dashboard Visuals
@@ -210,7 +200,7 @@ if st.session_state.user_id:
 else:
     st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts Elite</h1><p class="hero-subtitle">MÉTRICAS SaaS DE ALTA PRECISIÓN</p>', unsafe_allow_html=True)
     
-    # Removed search-card-container that was causing the ghost box
+    # Clean Search Row
     c0, c1, c2 = st.columns([1.2, 2.5, 1])
     with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
     with c1: h_q = st.text_input("Q", placeholder="Canal, usuario o video ID...", key="h_q", label_visibility="collapsed")
