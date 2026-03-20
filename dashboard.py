@@ -10,75 +10,96 @@ from unofficial_livecounts_api import (
 # ──────────────────────────── Page Config ────────────────────────────
 st.set_page_config(page_title="Livecounts Elite", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
 
-# ──────────────────────────── CSS (v6.0: Obsidian SaaS Aesthetic) ───────────────────
+# ──────────────────────────── CSS (v7.0: Hyper-SaaS Glassmorphism) ───────────────────
 CSS = (
-    "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap');"
+    "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap');"
+    
+    # Core Base
     "body, .stApp { "
-    "   background: radial-gradient(circle at 50% -20%, #1a1b1e 0%, #050505 100%) !important; "
-    "   color: #e5e5e5 !important; "
+    "   background: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 100%) !important; "
+    "   color: #f8fafc !important; "
     "   font-family: 'Outfit', sans-serif !important; "
     "}"
     "#MainMenu, footer, header { visibility: hidden; }"
     ".main-container { padding: 0; max-width: 1100px; margin: 0 auto; }"
     
-    # Hero Section
+    # Hero & Typography
     ".hero-section { text-align: center; padding: 14vh 2rem 6vh; }"
-    ".hero-title { font-size: clamp(3.5rem, 9vw, 6.5rem); font-weight: 900; letter-spacing: -5px; color: #fff; margin-bottom: 0.2rem; line-height: 0.9; text-shadow: 0 0 30px rgba(255,255,255,0.1); }"
-    ".hero-subtitle { color: #6b7280; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 8px; font-weight: 600; margin-bottom: 5rem; }"
+    ".hero-title { font-size: clamp(3.5rem, 9.5vw, 7rem); font-weight: 900; letter-spacing: -6px; color: #fff; margin-bottom: 0.2rem; line-height: 0.85; text-shadow: 0 0 50px rgba(255,255,255,0.05); }"
+    ".hero-subtitle { color: #94a3b8; font-size: 1rem; text-transform: uppercase; letter-spacing: 10px; font-weight: 700; margin-bottom: 5rem; opacity: 0.8; }"
     
-    # Glassmorphism Search Card
+    # Glassmorphism Box (Search Card)
     ".search-card-container { "
     "   max-width: 900px; margin: 0 auto; "
-    "   background: rgba(15, 15, 15, 0.6); "
-    "   backdrop-filter: blur(12px); "
+    "   background: rgba(15, 23, 42, 0.4); "
+    "   backdrop-filter: blur(24px) saturate(180%); "
     "   border: 1px solid rgba(255, 255, 255, 0.08); "
-    "   border-radius: 28px; padding: 16px; "
-    "   box-shadow: 0 40px 100px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.02); "
+    "   border-top: 1px solid rgba(255, 255, 255, 0.15); "
+    "   border-radius: 32px; padding: 18px; "
+    "   box-shadow: 0 40px 120px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.03); "
     "}"
     
-    # Input Styling
-    "div[data-baseweb='select'] > div { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px !important; }"
-    "input { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px !important; color: #fff !important; padding: 12px 18px !important; }"
+    # SaaS Input Overrides
+    "div[data-baseweb='select'] > div { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important; }"
+    "input { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; color: #fff !important; padding: 14px 22px !important; font-size: 1rem !important; transition: all 0.3s ease !important; }"
+    "input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important; }"
     
-    # Results List
-    ".list-divider { border-top: 1px solid rgba(255,255,255,0.05); margin: 25px 0; width: 100%; }"
-    ".mini-avatar { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }"
+    # Gradient Buttons (The "Wow" Factor)
     "div.stButton > button { "
-    "   width: 100% !important; background: transparent !important; border: none !important; color: #a3a3a3 !important; "
-    "   text-align: left !important; font-size: 1.2rem !important; font-weight: 500 !important; padding: 12px 20px !important; "
-    "   text-transform: none !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; "
+    "   width: 100% !important; border: 1px solid rgba(255,255,255,0.08) !important; "
+    "   background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%) !important; "
+    "   color: #cbd5e1 !important; border-radius: 14px !important; "
+    "   text-align: left !important; font-size: 1.1rem !important; font-weight: 600 !important; padding: 12px 20px !important; "
+    "   text-transform: none !important; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important; "
+    "   box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important; "
     "}"
-    "div.stButton > button:hover { color: #fff !important; background: rgba(255,255,255,0.03) !important; padding-left: 28px !important; }"
+    "div.stButton > button:hover { "
+    "   color: #fff !important; background: rgba(255,255,255,0.08) !important; "
+    "   transform: translateY(-2px) !important; box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; "
+    "   border-color: rgba(255,255,255,0.2) !important; "
+    "}"
+    "div.stButton > button:active { transform: translateY(0px) !important; }"
     
-    # Dashboard Premium
-    ".dashboard-banner { width: 100%; height: 320px; background: linear-gradient(180deg, rgba(8,8,8,1) 0%, rgba(0,0,0,1) 100%); border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }"
-    ".banner-glow { position: absolute; top: -50%; left: 50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%); transform: translateX(-50%); pointer-events: none; }"
-    ".profile-overlay { width: 160px; height: 160px; border-radius: 50%; border: 8px solid #000; position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); background: #111; z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }"
-    ".dashboard-content { padding: 120px 1rem 4rem; text-align: center; }"
-    ".main-count { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: #fff; letter-spacing: -4px; line-height: 0.9; margin-bottom: 1.5rem; text-shadow: 0 0 40px rgba(255,255,255,0.1); }"
-    ".count-label { color: #6b7280; font-size: 1.4rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 5rem; }"
+    # Primary Call-to-Action
+    "button[kind='primary'] { "
+    "   background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important; "
+    "   border: none !important; color: #fff !important; font-weight: 800 !important; letter-spacing: 1px !important; "
+    "}"
+    "button[kind='primary']:hover { "
+    "   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important; "
+    "   box-shadow: 0 0 25px rgba(37, 99, 235, 0.4) !important; "
+    "}"
     
-    # Metric Cards
-    ".metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 0 2rem; }"
+    # Dashboard Visuals
+    ".dashboard-banner { width: 100%; height: 350px; background: linear-gradient(180deg, #020617 0%, #000 100%); border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }"
+    ".mesh-gradient { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.1) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(239,68,68,0.05) 0%, transparent 40%); opacity: 0.6; pointer-events: none; }"
+    ".profile-overlay { width: 180px; height: 180px; border-radius: 50%; border: 10px solid #020617; position: absolute; bottom: -90px; left: 50%; transform: translateX(-50%); background: #0f172a; z-index: 10; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }"
+    ".dashboard-content { padding: 140px 1rem 4rem; text-align: center; }"
+    ".main-count { font-size: clamp(5.5rem, 13vw, 11rem); font-weight: 900; color: #fff; letter-spacing: -6px; line-height: 0.8; margin-bottom: 2rem; text-shadow: 0 0 60px rgba(255,255,255,0.08); }"
+    ".count-label { color: #94a3b8; font-size: 1.5rem; font-weight: 700; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 6rem; display: flex; align-items: center; justify-content: center; gap: 12px; }"
+    
+    # Metric Grid
+    ".metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 0 2.5rem; }"
     ".metric-box { "
-    "   background: rgba(10, 10, 10, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; "
-    "   padding: 2.5rem 1.5rem; text-align: center; transition: all 0.4s ease; "
+    "   background: rgba(15, 23, 42, 0.3); border: 1px solid rgba(255,255,255,0.04); border-top: 1px solid rgba(255,255,255,0.08); "
+    "   border-radius: 24px; padding: 2.5rem 1.5rem; text-align: center; transition: all 0.5s ease; "
+    "   box-shadow: inset 0 0 20px rgba(0,0,0,0.1); "
     "}"
-    ".metric-box:hover { background: rgba(20, 20, 20, 0.6); border-color: rgba(255,255,255,0.1); transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }"
-    ".metric-val { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.6rem; }"
-    ".metric-title { color: #4b5563; font-size: 0.95rem; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; }"
-    ".metric-title .material-symbols-rounded { font-size: 1.6rem; color: #ef4444; opacity: 0.8; }"
+    ".metric-box:hover { background: rgba(30, 41, 59, 0.4); border-color: rgba(255,255,255,0.15); transform: translateY(-12px); box-shadow: 0 30px 70px rgba(0,0,0,0.5); }"
+    ".metric-val { font-size: 2.4rem; font-weight: 900; color: #fff; margin-bottom: 0.8rem; letter-spacing: -1px; }"
+    ".metric-title { color: #64748b; font-size: 1rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 12px; }"
     
-    # Chart Premium
-    ".chart-container { background: rgba(10,10,10,0.2); border-radius: 30px; padding: 2rem; border: 1px solid rgba(255,255,255,0.03); margin-top: 6rem; }"
+    # Mini Avatar & List
+    ".mini-avatar { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }"
+    ".list-divider { border-bottom: 1px solid rgba(255,255,255,0.04); margin: 15px 0; width: 100%; }"
 )
 st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,700,1,0' /><style>{CSS}</style>", unsafe_allow_html=True)
 
 # ──────────────────────────── PLATFORMS ──────────────────────────────
 PLATFORMS = {
-    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#FF4B4B", "icon": "subscriptions", "label": "Subscribers", "slug": "youtube-live-subscriber-counter"},
-    "🔴 YouTube Views": {"key": "yt_views", "color": "#FF4B4B", "icon": "video_library", "label": "Views", "slug": "youtube-live-view-counter"},
-    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00F2EA", "icon": "music_note", "label": "Followers", "slug": "tiktok-live-follower-counter"},
+    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#FF2B2B", "icon": "subscriptions", "label": "Subscribers", "slug": "youtube-live-subscriber-counter"},
+    "🔴 YouTube Views": {"key": "yt_views", "color": "#FF2B2B", "icon": "video_library", "label": "Views", "slug": "youtube-live-view-counter"},
+    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00F5FF", "icon": "music_note", "label": "Followers", "slug": "tiktok-live-follower-counter"},
 }
 SLUG_TO_KEY = {v["slug"]: v["key"] for v in PLATFORMS.values()}
 
@@ -155,41 +176,39 @@ if st.session_state.user_id:
         st.session_state.history_values = st.session_state.history_values[-100:]
 
     pinfo = [v for k,v in PLATFORMS.items() if v["key"]==st.session_state.platform_key][0]
-    st.markdown(f'<div class="dashboard-banner"><div class="banner-glow" style="background:radial-gradient(circle, {pinfo["color"]}14 0%, transparent 70%);"></div><img src="{st.session_state.user_avatar}" class="profile-overlay" /></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="dashboard-banner"><div class="mesh-gradient" style="background: radial-gradient(circle at 50% 50%, {pinfo["color"]}1a 0%, transparent 60%); opacity:0.8;"></div><img src="{st.session_state.user_avatar}" class="profile-overlay" /></div>', unsafe_allow_html=True)
     st.markdown('<div class="main-container"><div class="dashboard-content">', unsafe_allow_html=True)
     
     display_handle = f"@{st.session_state.user_handle or st.session_state.user_name}".replace("@@", "@")
-    st.markdown(f'<h1 style="color:white;font-size:4rem;font-weight:900;margin-bottom:0.1rem;letter-spacing:-2px;">{display_handle}</h1>', unsafe_allow_html=True)
-    st.markdown(f'<div style="color:{pinfo["color"]};font-size:1.8rem;margin-bottom:4rem;"><span class="material-symbols-rounded">verified</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:white;font-size:4.5rem;font-weight:900;margin-bottom:0.1rem;letter-spacing:-3px;">{display_handle}</h1>', unsafe_allow_html=True)
+    st.markdown(f'<div style="color:{pinfo["color"]};font-size:2.2rem;margin-bottom:5rem;filter:drop-shadow(0 0 15px {pinfo["color"]}40);"><span class="material-symbols-rounded">verified</span></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="main-count">{fmt(count)}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="count-label">{pinfo["label"]} <span class="material-symbols-rounded" style="color:{pinfo["color"]};font-size:1.4rem;vertical-align:middle;margin-left:8px;">groups</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="count-label">{pinfo["label"]} <span class="material-symbols-rounded" style="color:{pinfo["color"]};font-size:1.6rem;vertical-align:middle;margin-left:12px;">groups</span></div>', unsafe_allow_html=True)
     
     if res.get("extra"):
         st.markdown('<div class="metric-grid">', unsafe_allow_html=True)
         cols = st.columns(3)
         for i, itm in enumerate(res["extra"][:3]):
-            with cols[i]: st.markdown(f'<div class="metric-box"><div class="metric-val">{fmt(itm["v"])}</div><div class="metric-title">{itm["l"]} <span class="material-symbols-rounded" style="color:{pinfo["color"]}">{itm["i"]}</span></div></div>', unsafe_allow_html=True)
+            with cols[i]: st.markdown(f'<div class="metric-box"><div class="metric-val">{fmt(itm["v"])}</div><div class="metric-title">{itm["l"]} <span class="material-symbols-rounded" style="color:{pinfo["color"]}cc">{itm["i"]}</span></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
     if len(st.session_state.history_values) > 1:
-        st.markdown("<div class='chart-container'>", unsafe_allow_html=True)
-        fig = go.Figure(); fig.add_trace(go.Scatter(x=st.session_state.history_times, y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=5), fill='tonexty', fillcolor=f"{pinfo['color']}05", showlegend=False))
-        fig.update_layout(height=480, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Outfit", color="#4b5563"), xaxis=dict(showgrid=False, zeroline=False, tickangle=0, ntoks=5), yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=False, tickformat=","))
+        fig = go.Figure(); fig.add_trace(go.Scatter(x=st.session_state.history_times, y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=6), fill='tonexty', fillcolor=f"{pinfo['color']}08", showlegend=False))
+        fig.update_layout(height=520, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Outfit", color="#64748b"), xaxis=dict(showgrid=False, zeroline=False, tickfont=dict(size=11)), yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=False, tickformat=","))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown('<div style="margin-top:6rem;text-align:center;">', unsafe_allow_html=True)
-    if st.button("⬅️ BUSCAR NUEVO", type="primary"): clear_all(); st.rerun()
+    if st.button("⬅️ BUSCAR NUEVO CANAL", key="back_btn"): clear_all(); st.rerun()
     st.markdown('</div></div></div>', unsafe_allow_html=True)
     time.sleep(2); st.rerun()
 
 else:
-    st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts Elite</h1><p class="hero-subtitle">MÉTRICAS PREMIUM EN TIEMPO REAL</p>', unsafe_allow_html=True)
+    st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts Elite</h1><p class="hero-subtitle">MÉTRICAS SaaS DE ALTA PRECISIÓN</p>', unsafe_allow_html=True)
     
     st.markdown('<div class="search-card-container">', unsafe_allow_html=True)
     c0, c1, c2 = st.columns([1.2, 2.5, 1])
     with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
-    with c1: h_q = st.text_input("Q", placeholder="Buscar canal, usuario o video...", key="h_q", label_visibility="collapsed")
+    with c1: h_q = st.text_input("Q", placeholder="Canal, usuario o video ID...", key="h_q", label_visibility="collapsed")
     with c2: 
         if st.button("BUSCAR ⚡", use_container_width=True, type="primary"):
             if h_q:
@@ -201,12 +220,11 @@ else:
     st.markdown('</div>', unsafe_allow_html=True)
     
     if st.session_state.show_results:
-        st.markdown('<div style="max-width:900px;margin:40px auto 0 auto;padding:0 12px;">', unsafe_allow_html=True)
+        st.markdown('<div style="max-width:900px;margin:50px auto 0 auto;padding:0 12px;">', unsafe_allow_html=True)
         _, list_col, _ = st.columns([1.2, 2.5, 1])
         with list_col:
-            st.markdown('<div class="list-divider"></div>', unsafe_allow_html=True)
             if not st.session_state.search_results:
-                st.markdown('<p style="text-align:center;color:#6b7280;">No se hallaron resultados.</p>', unsafe_allow_html=True)
+                st.markdown('<p style="text-align:center;color:#64748b;font-weight:600;">SIN RESULTADOS</p>', unsafe_allow_html=True)
             else:
                 for i, r in enumerate(st.session_state.search_results):
                     rid = r.get("id", r.get("userId", ""))
@@ -221,6 +239,6 @@ else:
                             st.query_params.update(u=f"{slug}/{rid}")
                             st.session_state.update(user_id=rid, user_name=r.get("name", rid), user_avatar=ravatar, user_handle=r.get("handle", ""), show_results=False, history_values=[], history_times=[])
                             st.rerun()
-                    st.markdown('<div style="border-bottom:1px solid rgba(255,255,255,0.03);margin:12px 0;"></div>', unsafe_allow_html=True)
+                    st.markdown('<div class="list-divider"></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div></div>', unsafe_allow_html=True)
