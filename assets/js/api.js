@@ -5,6 +5,25 @@
 
 const PROXY = "https://corsproxy.io/?";
 
+const ENDPOINTS = {
+    tiktok: {
+        search: "https://tiktok.livecounts.io/user/search",
+        stats: "https://tiktok.livecounts.io/user/stats"
+    },
+    youtube: {
+        search: "https://api.livecounts.io/youtube-live-subscriber-counter/search",
+        stats: "https://api.livecounts.io/youtube-live-subscriber-counter/stats"
+    },
+    twitter: {
+        search: "https://api.livecounts.io/twitter-live-follower-counter/search",
+        stats: "https://api.livecounts.io/twitter-live-follower-counter/stats"
+    },
+    twitch: {
+        search: "https://api.livecounts.io/twitch-live-follower-counter/search",
+        stats: "https://api.livecounts.io/twitch-live-follower-counter/stats"
+    }
+};
+
 /**
  * Port of the Midas/Catto/Ajay hashing algorithm
  */
@@ -38,10 +57,13 @@ async function fetchAPI(url, isTikTok = false) {
     try {
         const response = await fetch(fullUrl, {
             method: 'GET',
-            // headers: headers // Note: corsproxy.io might strip custom headers or fail if we send them in the fetch call directly due to preflight
+            headers: headers
         });
 
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP Error: ${response.status} - ${errorText}`);
+        }
         
         const parsed = await response.json();
         
