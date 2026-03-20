@@ -10,7 +10,7 @@ from unofficial_livecounts_api import (
 # ──────────────────────────── Page Config ────────────────────────────
 st.set_page_config(page_title="Livecounts Elite", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
 
-# ──────────────────────────── BOXED LIST CSS ───────────────────
+# ──────────────────────────── DROPDOWN LIST CSS ───────────────────
 CSS = (
     "font-family:'Outfit',sans-serif;.stApp{background:#000}"
     "#MainMenu,footer,header{visibility:hidden}.main-container{padding:0;max-width:1100px;margin:0 auto}"
@@ -18,11 +18,11 @@ CSS = (
     ".hero-title{font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:-4px;color:white;margin-bottom:0.5rem;line-height:1}"
     ".hero-subtitle{color:#404040;font-size:1.3rem;text-transform:uppercase;letter-spacing:6px;font-weight:400;margin-bottom:4rem}"
     ".search-card-container{max-width:900px;margin:0 auto;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:24px;padding:12px;box-shadow:0 30px 60px rgba(0,0,0,0.5)}"
-    ".inline-list{max-width:900px;margin:2rem auto;display:flex;flex-direction:column;gap:12px}"
-    ".result-row{display:flex;align-items:center;gap:15px;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:16px;padding:8px 15px;transition:all 0.2s}"
-    ".result-row:hover{background:#161616;border-color:#333}"
-    ".list-avatar{width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid #262626}"
-    "div.stButton > button{width:100%!important;background:transparent!important;border:none!important;color:#fff!important;text-align:left!important;font-size:1.1rem!important;font-weight:600!important;padding:10px 0!important;text-transform:none!important}"
+    ".dropdown-list{max-width:450px;margin:10px auto;background:#111;border:1px solid #262626;border-radius:16px;overflow:hidden;z-index:100;box-shadow:0 15px 30px rgba(0,0,0,0.8)}"
+    ".dropdown-item{display:flex;align-items:center;gap:12px;padding:10px 15px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid #1a1a1a}"
+    ".dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#1a1a1a}"
+    ".mini-avatar{width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #333}"
+    ".mini-handle{color:#fff;font-weight:600;font-size:1rem;text-transform:none}"
     ".dashboard-banner{width:100%;height:280px;background:linear-gradient(to bottom,#0a0a0a,#000);border-bottom:1px solid #1f1f1f;position:relative}"
     ".profile-overlay{width:140px;height:140px;border-radius:50%;border:6px solid #000;position:absolute;bottom:-70px;left:50%;transform:translateX(-50%);background:#171717;z-index:10}"
     ".dashboard-content{padding:100px 1rem 4rem;text-align:center}"
@@ -35,13 +35,6 @@ CSS = (
     ".metric-title .material-symbols-rounded{font-size:1.4rem;color:#ef4444}"
 )
 st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,700,0,0' /><style>{CSS}</style>", unsafe_allow_html=True)
-
-# ──────────────────────────── PLATFORMS ──────────────────────────────
-PLATFORMS = {
-    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#ef4444", "icon": "subscriptions", "label": "Subscribers"},
-    "🔴 YouTube Views": {"key": "yt_views", "color": "#ef4444", "icon": "video_library", "label": "Views"},
-    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00f2ea", "icon": "music_note", "label": "Followers"},
-}
 
 # ──────────────────────────── HELPERS ────────────────────────────────
 def fmt(n): return f"{int(n):,}".replace(",", ".")
@@ -84,22 +77,26 @@ def clear_all():
     st.session_state.update(user_id=None, show_results=False, history_values=[], history_times=[])
     st.query_params.clear()
 
-# ──────────────────────────── METADATA AUTO-DISCOVERY ────────────────
-if st.session_state.user_id and not st.session_state.user_name:
-    try:
-        pk = st.session_state.platform_key
-        found = []
-        if pk.startswith("yt"): found = (api.youtube.find_channel(st.session_state.user_id) if pk=="yt_subs" else api.youtube.find_video(st.session_state.user_id))
-        else: found = api.tiktok.find_user(st.session_state.user_id)
-        for r in found:
-            rid = r.get("id", r.get("userId", ""))
-            if rid == st.session_state.user_id:
-                st.session_state.update(user_name=r.get("name"), user_avatar=r.get("avatar"), user_handle=r.get("handle", r.get("username", r.get("name"))))
-                break
-    except: pass
-
 # ──────────────────────────── UI ─────────────────────────────────────
+PLATFORMS = {
+    "🔴 YouTube Subs": {"key": "yt_subs", "color": "#ef4444", "icon": "subscriptions", "label": "Subscribers"},
+    "🔴 YouTube Views": {"key": "yt_views", "color": "#ef4444", "icon": "video_library", "label": "Views"},
+    "🎵 TikTok Follows": {"key": "tt_followers", "color": "#00f2ea", "icon": "music_note", "label": "Followers"},
+}
+
 if st.session_state.user_id:
+    # AUTO-DISCOVERY Metadata check if returning from URL
+    if not st.session_state.user_handle:
+        try:
+            pk = st.session_state.platform_key
+            found = (api.youtube.find_channel(st.session_state.user_id) if pk=="yt_subs" else api.youtube.find_video(st.session_state.user_id)) if pk.startswith("yt") else api.tiktok.find_user(st.session_state.user_id)
+            for r in found:
+                rid = r.get("id", r.get("userId", ""))
+                if rid == st.session_state.user_id:
+                    st.session_state.update(user_name=r.get("name"), user_avatar=r.get("avatar"), user_handle=r.get("handle", r.get("username", r.get("name"))))
+                    break
+        except: pass
+
     res = fetch_live_data(st.session_state.user_id, st.session_state.platform_key)
     if "error" in res:
         st.error(res["error"]); st.button("🔄 REINTENTAR", on_click=st.rerun); st.button("⬅️ INICIO", on_click=clear_all); st.stop()
@@ -113,8 +110,11 @@ if st.session_state.user_id:
 
     st.markdown(f'<div class="dashboard-banner"><img src="{st.session_state.user_avatar}" class="profile-overlay" /></div>', unsafe_allow_html=True)
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown(f'<div class="dashboard-content"><h1 style="color:white;font-size:3.5rem;font-weight:800;margin-bottom:0.1rem;">{st.session_state.user_name}</h1>', unsafe_allow_html=True)
-    st.markdown(f'<div style="color:#ef4444;font-size:1.5rem;margin-bottom:3rem;"><span class="material-symbols-rounded">play_circle</span></div>', unsafe_allow_html=True)
+    
+    # IDENTITY: Always start with @ as requested
+    display_handle = f"@{st.session_state.user_handle or st.session_state.user_name}"
+    st.markdown(f'<div class="dashboard-content"><h1 style="color:white;font-size:3.5rem;font-weight:800;margin-bottom:0.1rem;">{display_handle}</h1>', unsafe_allow_html=True)
+    st.markdown(f'<div style="color:#ef4444;font-size:1.5rem;margin-bottom:3rem;"><span class="material-symbols-rounded">verified</span></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="main-count">{fmt(count)}</div>', unsafe_allow_html=True)
     pinfo = [v for k,v in PLATFORMS.items() if v["key"]==st.session_state.platform_key][0]
     st.markdown(f'<div class="count-label">{pinfo["label"]} <span class="material-symbols-rounded" style="font-size:1.2rem;vertical-align:middle;">groups</span></div>', unsafe_allow_html=True)
@@ -133,7 +133,7 @@ if st.session_state.user_id:
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     
     st.markdown('<div style="margin-top:4rem;text-align:center;">', unsafe_allow_html=True)
-    st.button("⬅️ BUSCAR OTRO CANAL", type="primary", on_click=clear_all)
+    st.button("⬅️ BUSCAR NUEVO", type="primary", on_click=clear_all)
     st.markdown('</div></div>', unsafe_allow_html=True)
     time.sleep(2); st.rerun()
 
@@ -155,27 +155,29 @@ else:
                 except Exception as e: st.error(f"Error: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
     
+    # DROPDOWN LIST (Compact & Dividend-separated)
     if st.session_state.show_results:
         if not st.session_state.search_results:
             st.warning("No se hallaron resultados.")
         else:
-            st.markdown('<div class="inline-list">', unsafe_allow_html=True)
-            for i, r in enumerate(st.session_state.search_results):
-                rid = r.get("id", r.get("userId", ""))
-                rname = r.get("name", rid)
-                rhandle = r.get("handle", r.get("username", ""))
-                ravatar = r.get("avatar", r.get("thumbnail", ""))
-                
-                # REfined content: Only show "@handle" or "@name"
-                handle_str = f"@{rhandle}" if rhandle else f"@{rname}"
-                
-                # BOXED ITEM (Image 3 style with modern twist)
-                st.markdown(f'<div class="result-row"><img src="{ravatar}" class="list-avatar">', unsafe_allow_html=True)
-                if st.button(handle_str, key=f"sel_{i}"):
-                    st.query_params.update(u=rid, p=st.session_state.platform_key)
-                    st.session_state.update(user_id=rid, user_name=rname, user_avatar=ravatar, user_handle=rhandle, show_results=False, history_values=[], history_times=[])
-                    st.rerun()
+            with st.container():
+                st.markdown('<div class="dropdown-list">', unsafe_allow_html=True)
+                for i, r in enumerate(st.session_state.search_results):
+                    rid = r.get("id", r.get("userId", ""))
+                    rname = r.get("name", rid)
+                    rhandle = r.get("handle", r.get("username", rname))
+                    ravatar = r.get("avatar", r.get("thumbnail", ""))
+                    
+                    # IDENTITY: Start with @
+                    h_label = f"@{rhandle}" if rhandle else f"@{rname}"
+                    
+                    # We use a horizontal layout with a small button for each dropdown item
+                    st.markdown(f'<div class="dropdown-item"><img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
+                    if st.button(h_label, key=f"drp_{i}"):
+                        st.query_params.update(u=rid, p=st.session_state.platform_key)
+                        st.session_state.update(user_id=rid, user_name=rname, user_avatar=ravatar, user_handle=rhandle, show_results=False, history_values=[], history_times=[])
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div></div>', unsafe_allow_html=True)
