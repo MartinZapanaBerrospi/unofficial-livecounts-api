@@ -80,7 +80,11 @@ if "user_id" not in st.session_state:
     st.session_state.user_avatar = params.get("a", "")
     st.session_state.user_handle = params.get("h", "")
 
-defaults = {"user_id": None, "user_name": "", "user_avatar": "", "user_handle": "", "platform_key": "yt_subs", "history_values": []}
+defaults = {
+    "user_id": None, "user_name": "", "user_avatar": "", "user_handle": "",
+    "platform_key": "yt_subs", "history_values": [], "show_results": False,
+    "search_results": []
+}
 for k, v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
