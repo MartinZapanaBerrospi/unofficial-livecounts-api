@@ -60,19 +60,19 @@ warnings.simplefilter("ignore", httpx.NetworkError)
 @lru_cache(maxsize=128)
 def __get_default_header(timestamp_ms: int) -> dict[str, str]:
     x_ajay = timestamp_ms
-    x_catto = hashlib.new('ripemd160', str(x_ajay).encode()).hexdigest()
     # Using Crypto.Hash if available for RIPEMD160, but fallback to hashlib if needed
     try:
         h = RIPEMD160.new()
         h.update(str(x_ajay).encode("utf-8"))
         x_catto = h.hexdigest()
     except Exception:
-        pass
+        x_catto = hashlib.new('ripemd160', str(x_ajay).encode()).hexdigest()
         
     x_midas = hashlib.sha384(hashlib.sha256(str(x_ajay + 64).encode()).hexdigest().encode()).hexdigest()
+    
     return {
-        "User-Agent": get_random_user_agent(),
-        "Accept": "*/*",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
         "Origin": "https://livecounts.io",
         "Referer": "https://livecounts.io/",
         "X-Ajay": str(x_ajay),
