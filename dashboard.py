@@ -151,6 +151,11 @@ def clear_all():
     st.session_state.update(user_id=None, show_results=False, history_values=[], history_times=[])
     st.query_params.clear()
 
+def hex_to_rgba(hex_str, opacity):
+    h = hex_str.lstrip('#')
+    rgb = tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+    return f'rgba({rgb[0]},{rgb[1]},{rgb[2]},{opacity})'
+
 # ──────────────────────────── UI ─────────────────────────────────────
 if st.session_state.user_id:
     if not st.session_state.user_handle:
@@ -193,7 +198,7 @@ if st.session_state.user_id:
         st.markdown('</div>', unsafe_allow_html=True)
     
     if len(st.session_state.history_values) > 1:
-        fig = go.Figure(); fig.add_trace(go.Scatter(x=st.session_state.history_times, y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=6), fill='tonexty', fillcolor=f"{pinfo['color']}08", showlegend=False))
+        fig = go.Figure(); fig.add_trace(go.Scatter(x=st.session_state.history_times, y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=6), fill='tonexty', fillcolor=hex_to_rgba(pinfo['color'], 0.08), showlegend=False))
         fig.update_layout(height=520, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Outfit", color="#64748b"), xaxis=dict(showgrid=False, zeroline=False, tickfont=dict(size=11)), yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=False, tickformat=","))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     
@@ -205,7 +210,7 @@ if st.session_state.user_id:
 else:
     st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts Elite</h1><p class="hero-subtitle">MÉTRICAS SaaS DE ALTA PRECISIÓN</p>', unsafe_allow_html=True)
     
-    st.markdown('<div class="search-card-container">', unsafe_allow_html=True)
+    # Removed search-card-container that was causing the ghost box
     c0, c1, c2 = st.columns([1.2, 2.5, 1])
     with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
     with c1: h_q = st.text_input("Q", placeholder="Canal, usuario o video ID...", key="h_q", label_visibility="collapsed")
@@ -217,7 +222,6 @@ else:
                     res = (api.youtube.find_channel(h_q) if pk=="yt_subs" else api.youtube.find_video(h_q)) if pk.startswith("yt") else api.tiktok.find_user(h_q)
                     st.session_state.update(search_results=res, show_results=True, platform_key=pk); st.rerun()
                 except Exception as e: st.error(f"Error: {e}")
-    st.markdown('</div>', unsafe_allow_html=True)
     
     if st.session_state.show_results:
         st.markdown('<div style="max-width:900px;margin:50px auto 0 auto;padding:0 12px;">', unsafe_allow_html=True)
