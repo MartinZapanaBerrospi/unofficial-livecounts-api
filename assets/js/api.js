@@ -3,26 +3,7 @@
  * High performance real-time stats for TikTok, YouTube, Twitter, Twitch
  */
 
-const PROXY = "https://api.allorigins.win/get?url=";
-
-const ENDPOINTS = {
-    tiktok: {
-        search: "https://tiktok.livecounts.io/user/search",
-        stats: "https://tiktok.livecounts.io/user/stats"
-    },
-    youtube: {
-        search: "https://api.livecounts.io/youtube-live-subscriber-counter/search",
-        stats: "https://api.livecounts.io/youtube-live-subscriber-counter/stats"
-    },
-    twitter: {
-        search: "https://api.livecounts.io/twitter-live-follower-counter/search",
-        stats: "https://api.livecounts.io/twitter-live-follower-counter/stats"
-    },
-    twitch: {
-        search: "https://api.livecounts.io/twitch-live-follower-counter/search",
-        stats: "https://api.livecounts.io/twitch-live-follower-counter/stats"
-    }
-};
+const PROXY = "https://corsproxy.io/?";
 
 /**
  * Port of the Midas/Catto/Ajay hashing algorithm
@@ -47,7 +28,6 @@ async function fetchAPI(url, isTikTok = false) {
     const timestamp = Date.now();
     const headers = getHeaders(timestamp);
     
-    // For TikTok, we might need a specific Origin/Referer in some cases
     if (isTikTok) {
         headers["Origin"] = "https://tiktok.livecounts.io";
         headers["Referer"] = "https://tiktok.livecounts.io/";
@@ -56,9 +36,14 @@ async function fetchAPI(url, isTikTok = false) {
     const fullUrl = `${PROXY}${encodeURIComponent(url)}`;
     
     try {
-        const response = await fetch(fullUrl);
-        const data = await response.json();
-        const parsed = JSON.parse(data.contents);
+        const response = await fetch(fullUrl, {
+            method: 'GET',
+            // headers: headers // Note: corsproxy.io might strip custom headers or fail if we send them in the fetch call directly due to preflight
+        });
+
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        
+        const parsed = await response.json();
         
         if (!parsed.success && parsed.success !== undefined) {
             throw new Error("API Unsuccessful");
