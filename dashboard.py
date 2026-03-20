@@ -186,7 +186,7 @@ elif st.session_state.user_id:
     except Exception as e: st.error(f"Error de actualización: {e}"); time.sleep(5); st.rerun()
 
 else:
-    st.markdown('<div style="text-align:center;padding:14rem 2rem;"><div style="font-size:10rem;margin-bottom:4rem;background:linear-gradient(135deg, #818cf8, #c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter: drop-shadow(0 0 30px rgba(129,140,248,0.3));">rocket</div><div style="color:white;font-size:3rem;font-weight:900;letter-spacing:-1px;">SISTEMA LISTO</div><div style="color:#64748b;font-size:1.5rem;font-weight:300;margin-top:1rem;">Selecciona una plataforma para iniciar la transmisión de datos.</div></div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align:center;padding:12rem 2rem;"><div class="material-symbols-rounded" style="font-size:12rem;margin-bottom:2rem;background:linear-gradient(135deg, #818cf8, #c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter: drop-shadow(0 0 40px rgba(129,140,248,0.4));">rocket_launch</div><div style="color:white;font-size:3.5rem;font-weight:900;letter-spacing:-2px;margin-bottom:0.5rem;">SISTEMA LISTO</div><div style="color:#94a3b8;font-size:1.4rem;font-weight:300;letter-spacing:1px;">Selecciona una plataforma en el panel lateral para iniciar el monitoreo.</div></div>', unsafe_allow_html=True)
 
 def get_metrics(uid, pk):
     try:
