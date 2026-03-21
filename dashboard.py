@@ -180,7 +180,10 @@ if st.session_state.user_id:
     pinfo = [v for k,v in PLATFORMS.items() if v["key"]==st.session_state.platform_key][0]
     
     # BRANDING SECTION (v8.0)
-    banner_url = st.session_state.user_banner or "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
+    if not st.session_state.user_banner and "yt" in st.session_state.platform_key:
+        banner_url = f"https://banner.yt/{st.session_state.user_id}"
+    else:
+        banner_url = st.session_state.user_banner or "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
     icon = 'play_circle' if pinfo["tag"] == "youtube" else 'music_note'
     html_block = f'''
     <div class="dashboard-card">
