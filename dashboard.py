@@ -34,7 +34,8 @@ CSS = (
     
     # Input Styling
     "div[data-baseweb='select'] > div, div[data-testid='stSelectbox'] > div > div { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; height: 52px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
-    "div[data-testid='stTextInput'] input { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; color: #fff !important; height: 52px !important; font-size: 1rem !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
+    "div[data-testid='stTextInput'] div[data-baseweb='input'] { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; height: 52px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
+    "div[data-testid='stTextInput'] input { color: #fff !important; font-size: 1rem !important; height: 52px !important; background: transparent !important; }"
     "div[data-baseweb='select'] input { padding: 0 !important; width: 0 !important; height: 0 !important; }"
     
     # Buttons
@@ -221,7 +222,7 @@ if st.session_state.user_id:
     time.sleep(2); st.rerun()
 
 else:
-    st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts Elite</h1><p class="hero-subtitle">PREMIUM DASHBOARD ARCHITECTURE</p>', unsafe_allow_html=True)
+    st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts</h1><p class="hero-subtitle">REAL-TIME ANALYTICS DASHBOARD</p>', unsafe_allow_html=True)
     
     c0, c1, c2 = st.columns([1.2, 2.5, 1])
     with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
