@@ -47,10 +47,10 @@ CSS = (
     "   background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.08) !important; "
     "   box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; transition: all 0.3s ease !important; "
     "}"
-    "div[data-testid='stButton'] button:hover, div[data-testid='stFormSubmitButton'] button:hover, div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.15) !important; }"
+    "div[data-testid='stButton'] button:hover, div[data-testid='stFormSubmitButton'] button:hover, div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(139,92,246,0.5) !important; }"
     
-    "div[data-testid='stButton'] button[kind='primary'], div[data-testid='stFormSubmitButton'] button[kind='primary'], button[kind='primary'], button[data-testid='baseButton-primary'] { background: linear-gradient(135deg, rgba(29,78,216,0.6), rgba(29,78,216,0.2)) !important; border: 1px solid rgba(29,78,216,0.5) !important; box-shadow: 0 8px 32px rgba(29,78,216,0.2) !important; color: #fff !important; }"
-    "div[data-testid='stButton'] button[kind='primary']:hover, div[data-testid='stFormSubmitButton'] button[kind='primary']:hover, button[kind='primary']:hover, button[data-testid='baseButton-primary']:hover { background: linear-gradient(135deg, rgba(29,78,216,0.8), rgba(29,78,216,0.4)) !important; }"
+    "div[data-testid='stButton'] button[kind='primary'], div[data-testid='stFormSubmitButton'] button[kind='primary'], button[kind='primary'], button[data-testid='baseButton-primary'] { background: linear-gradient(135deg, rgba(139,92,246,0.6), rgba(239,68,68,0.4)) !important; border: 1px solid rgba(139,92,246,0.5) !important; box-shadow: 0 8px 32px rgba(139,92,246,0.3) !important; color: #fff !important; }"
+    "div[data-testid='stButton'] button[kind='primary']:hover, div[data-testid='stFormSubmitButton'] button[kind='primary']:hover, button[kind='primary']:hover, button[data-testid='baseButton-primary']:hover { background: linear-gradient(135deg, rgba(139,92,246,0.8), rgba(239,68,68,0.6)) !important; }"
     
     # DASHBOARD BRANDING (Glassmorphism)
     ".banner-section { width: 100%; height: 320px; position: relative; overflow: hidden; background: #111; }"
@@ -81,8 +81,9 @@ CSS = (
     ".back-container { margin-top: 80px; text-align: center; padding-bottom: 100px; }"
     
     # Search List
+    "div[data-testid='stVerticalBlockBorderWrapper'] { background: rgba(255,255,255,0.02) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(139,92,246,0.3) !important; border-radius: 16px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important; margin-bottom: 12px !important; transition: transform 0.2s ease, border 0.2s ease; }"
+    "div[data-testid='stVerticalBlockBorderWrapper']:hover { transform: translateY(-2px); border: 1px solid rgba(239,68,68,0.5) !important; }"
     ".mini-avatar { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }"
-    ".list-divider { border-bottom: 1px solid rgba(255,255,255,0.02); margin: 15px 0; }"
 )
 st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,700,1,0' /><style>{CSS}</style>", unsafe_allow_html=True)
 
@@ -254,14 +255,14 @@ else:
                     ravatar = r.get("avatar", r.get("thumbnail", ""))
                     h_label = f"@{r.get('handle', r.get('username', r.get('name', rid)))}".replace("@@", "@")
                     
-                    l0, l1 = st.columns([0.18, 0.82])
-                    with l0: st.markdown(f'<img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
-                    with l1:
-                        if st.button(h_label, key=f"sel_{i}"):
-                            slug = [v["slug"] for v in PLATFORMS.values() if v["key"] == st.session_state.platform_key][0]
-                            st.query_params.update(u=f"{slug}/{rid}")
-                            st.session_state.update(user_id=rid, user_name=r.get("name", rid), user_avatar=ravatar, show_results=False, history_values=[], history_times=[])
-                            st.rerun()
-                    st.markdown('<div class="list-divider"></div>', unsafe_allow_html=True)
+                    with st.container(border=True):
+                        l0, l1 = st.columns([0.18, 0.82])
+                        with l0: st.markdown(f'<img src="{ravatar}" class="mini-avatar">', unsafe_allow_html=True)
+                        with l1:
+                            if st.button(h_label, key=f"sel_{i}", use_container_width=True):
+                                slug = [v["slug"] for v in PLATFORMS.values() if v["key"] == st.session_state.platform_key][0]
+                                st.query_params.update(u=f"{slug}/{rid}")
+                                st.session_state.update(user_id=rid, user_name=r.get("name", rid), user_avatar=ravatar, show_results=False, history_values=[], history_times=[])
+                                st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div></div>', unsafe_allow_html=True)
