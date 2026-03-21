@@ -16,9 +16,11 @@ CSS = (
     
     # Core Base
     "body, .stApp, [data-testid='stAppViewContainer'] { "
-    "   background: radial-gradient(circle at 15% 50%, rgba(29, 78, 216, 0.08), transparent 25%), "
-    "               radial-gradient(circle at 85% 30%, rgba(255, 43, 43, 0.08), transparent 25%), "
-    "               #050505 !important; "
+    "   background-color: #0f0c29 !important; "
+    "   background-image: radial-gradient(circle at 15% 50%, rgba(59,130,246,0.15), transparent 40%), "
+    "                     radial-gradient(circle at 85% 30%, rgba(239,68,68,0.15), transparent 40%), "
+    "                     radial-gradient(circle at 50% 80%, rgba(139,92,246,0.15), transparent 40%), "
+    "                     linear-gradient(to right, #0f0c29, #302b63, #24243e) !important; "
     "   background-attachment: fixed !important; "
     "   color: #f8fafc !important; "
     "   font-family: 'Outfit', sans-serif !important; "
@@ -39,15 +41,16 @@ CSS = (
     "div[data-baseweb='select'] input { padding: 0 !important; width: 0 !important; height: 0 !important; }"
     
     # Buttons
-    "div[data-testid='stButton'] button, div.stButton > button { "
+    "div[data-testid='stForm'] { border: none !important; padding: 0 !important; background: transparent !important; }"
+    "div[data-testid='stButton'] button, div[data-testid='stFormSubmitButton'] button, div.stButton > button { "
     "   border-radius: 12px !important; height: 52px !important; font-weight: 700 !important; "
     "   background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.08) !important; "
     "   box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; transition: all 0.3s ease !important; "
     "}"
-    "div[data-testid='stButton'] button:hover, div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.15) !important; }"
+    "div[data-testid='stButton'] button:hover, div[data-testid='stFormSubmitButton'] button:hover, div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.15) !important; }"
     
-    "div[data-testid='stButton'] button[kind='primary'], button[kind='primary'], button[data-testid='baseButton-primary'] { background: linear-gradient(135deg, rgba(29,78,216,0.6), rgba(29,78,216,0.2)) !important; border: 1px solid rgba(29,78,216,0.5) !important; box-shadow: 0 8px 32px rgba(29,78,216,0.2) !important; color: #fff !important; }"
-    "div[data-testid='stButton'] button[kind='primary']:hover, button[kind='primary']:hover, button[data-testid='baseButton-primary']:hover { background: linear-gradient(135deg, rgba(29,78,216,0.8), rgba(29,78,216,0.4)) !important; }"
+    "div[data-testid='stButton'] button[kind='primary'], div[data-testid='stFormSubmitButton'] button[kind='primary'], button[kind='primary'], button[data-testid='baseButton-primary'] { background: linear-gradient(135deg, rgba(29,78,216,0.6), rgba(29,78,216,0.2)) !important; border: 1px solid rgba(29,78,216,0.5) !important; box-shadow: 0 8px 32px rgba(29,78,216,0.2) !important; color: #fff !important; }"
+    "div[data-testid='stButton'] button[kind='primary']:hover, div[data-testid='stFormSubmitButton'] button[kind='primary']:hover, button[kind='primary']:hover, button[data-testid='baseButton-primary']:hover { background: linear-gradient(135deg, rgba(29,78,216,0.8), rgba(29,78,216,0.4)) !important; }"
     
     # DASHBOARD BRANDING (Glassmorphism)
     ".banner-section { width: 100%; height: 320px; position: relative; overflow: hidden; background: #111; }"
@@ -224,11 +227,14 @@ if st.session_state.user_id:
 else:
     st.markdown('<div class="main-container"><div class="hero-section"><h1 class="hero-title">Livecounts</h1><p class="hero-subtitle">REAL-TIME ANALYTICS DASHBOARD</p>', unsafe_allow_html=True)
     
-    c0, c1, c2 = st.columns([1.2, 2.5, 1])
-    with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
-    with c1: h_q = st.text_input("Q", placeholder="Enter Channel ID or Name...", key="h_q", label_visibility="collapsed")
-    with c2: 
-        if st.button("SEARCH ⚡", use_container_width=True, type="primary"):
+    with st.form("search_form", border=False):
+        c0, c1, c2 = st.columns([1.2, 2.5, 1])
+        with c0: h_pk_label = st.selectbox("P", list(PLATFORMS.keys()), key="h_pk", label_visibility="collapsed")
+        with c1: h_q = st.text_input("Q", placeholder="Enter Channel ID or Name...", key="h_q", label_visibility="collapsed")
+        with c2: 
+            submitted = st.form_submit_button("SEARCH ⚡", use_container_width=True, type="primary")
+
+        if submitted:
             if h_q:
                 pk = PLATFORMS[h_pk_label]["key"]
                 try:
