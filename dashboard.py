@@ -52,33 +52,31 @@ CSS = (
     "div[data-testid='stButton'] button[kind='primary'], div[data-testid='stFormSubmitButton'] button[kind='primary'], button[kind='primary'], button[data-testid='baseButton-primary'] { background: linear-gradient(135deg, rgba(139,92,246,0.6), rgba(239,68,68,0.4)) !important; border: 1px solid rgba(139,92,246,0.5) !important; box-shadow: 0 8px 32px rgba(139,92,246,0.3) !important; color: #fff !important; }"
     "div[data-testid='stButton'] button[kind='primary']:hover, div[data-testid='stFormSubmitButton'] button[kind='primary']:hover, button[kind='primary']:hover, button[data-testid='baseButton-primary']:hover { background: linear-gradient(135deg, rgba(139,92,246,0.8), rgba(239,68,68,0.6)) !important; }"
     
-    # DASHBOARD BRANDING (Glassmorphism)
-    ".banner-section { width: 100%; height: 320px; position: relative; overflow: hidden; background: #111; }"
-    ".banner-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); mask-image: linear-gradient(to bottom, black 50%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%); }"
-    ".centered-avatar-box { position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); z-index: 100; }"
-    ".main-avatar { width: 160px; height: 160px; border-radius: 50%; border: 4px solid rgba(255,43,43,0.8); box-shadow: 0 0 40px rgba(255,43,43,0.4); object-fit: cover; background: #000; }"
+    # DASHBOARD BRANDING (Compact & Professional)
+    ".dashboard-card { background: #000; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; overflow: hidden; max-width: 900px; margin: 0 auto; margin-top: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }"
+    ".banner-section { width: 100%; height: 180px; position: relative; background: #111; }"
+    ".banner-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }"
+    ".centered-avatar-box { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); z-index: 100; }"
+    ".main-avatar { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #FF2B2B; box-shadow: 0 4px 15px rgba(0,0,0,0.5); object-fit: cover; background: #000; }"
     
-    ".dashboard-header { text-align: center; padding-top: 100px; padding-bottom: 50px; position: relative; }"
-    ".channel-name { font-size: 3rem; font-weight: 800; color: #cbd5e1; margin-bottom: 1rem; background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 5px 20px; border-radius: 12px; display: inline-block; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.15); }"
-    ".platform-badge { font-size: 1.5rem; color: #FF2B2B; margin-bottom: 3rem; text-shadow: 0 0 10px rgba(255,43,43,0.5); }"
-    ".mega-count { font-size: clamp(6rem, 15vw, 12rem); font-weight: 900; color: #fff; line-height: 0.8; letter-spacing: -5px; margin-bottom: 1rem; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }"
-    ".mega-label { font-size: 1.2rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }"
+    ".dashboard-header { text-align: center; padding-top: 60px; padding-bottom: 0px; position: relative; }"
+    ".channel-name { font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; display: flex; align-items: center; justify-content: center; gap: 8px; }"
+    ".platform-badge { font-size: 1rem; margin-bottom: 0.8rem; }"
+    ".mega-count { font-size: 4rem; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -1px; margin-bottom: 8px; }"
+    ".mega-label { font-size: 0.9rem; color: #e2e8f0; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 30px; margin: 0 40px; }"
     
-    # METRIC BOXES (Glassmorphism)
-    ".metric-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; padding: 0 1rem; }"
+    # METRIC BOXES (Professional Layout)
+    ".metric-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 20px 40px 30px 40px; }"
     ".lux-metric-box { "
-    "   background: rgba(255,255,255,0.02); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); "
-    "   border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2); "
-    "   padding: 2.5rem 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; "
-    "   transition: transform 0.3s ease, background 0.3s ease, border 0.3s ease; "
+    "   background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; "
+    "   padding: 1.2rem 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; "
     "}"
-    ".lux-metric-box:hover { transform: translateY(-5px); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); }"
-    ".lux-val { font-size: 2.8rem; font-weight: 800; color: #fff; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }"
-    ".lux-title { color: #3b82f6; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; text-transform: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }"
+    ".lux-val { font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: 0; }"
+    ".lux-title { color: #3b82f6; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; text-transform: capitalize; }"
     
     # Graph & Back
-    ".stPlotlyChart { margin-top: 60px; padding: 0 10px; }"
-    ".back-container { margin-top: 80px; text-align: center; padding-bottom: 100px; }"
+    ".stPlotlyChart { margin-top: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }"
+    ".back-container { margin-top: 40px; text-align: center; padding-bottom: 80px; }"
     
     # Search List
     "div[data-testid='stVerticalBlockBorderWrapper'] { background: rgba(255,255,255,0.02) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(139,92,246,0.3) !important; border-radius: 16px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important; margin-bottom: 12px !important; transition: transform 0.2s ease, border 0.2s ease; }"
@@ -182,36 +180,37 @@ if st.session_state.user_id:
     
     # BRANDING SECTION (v8.0)
     banner_url = st.session_state.user_banner or "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
+    st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
     st.markdown('<div class="banner-section">', unsafe_allow_html=True)
     st.markdown(f'<img src="{banner_url}" class="banner-img">', unsafe_allow_html=True)
     st.markdown(f'<div class="centered-avatar-box"><img src="{st.session_state.user_avatar}" class="main-avatar" style="border-color:{pinfo["color"]};"></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="main-container"><div class="dashboard-header">', unsafe_allow_html=True)
+    st.markdown('<div class="dashboard-header">', unsafe_allow_html=True)
     st.markdown(f'<div class="channel-name">{st.session_state.user_name}</div>', unsafe_allow_html=True)
     
     # Platform Icon Badge
     if pinfo["tag"] == "youtube":
-        st.markdown('<div class="platform-badge" style="color:#FF0000;"><span class="material-symbols-rounded">play_circle</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="platform-badge" style="color:#FF0000;"><span class="material-symbols-rounded" style="font-size:1.2rem;">play_circle</span></div>', unsafe_allow_html=True)
     else:
-        st.markdown('<div class="platform-badge" style="color:#00F5FF;"><span class="material-symbols-rounded">music_note</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="platform-badge" style="color:#00F5FF;"><span class="material-symbols-rounded" style="font-size:1.2rem;">music_note</span></div>', unsafe_allow_html=True)
         
     st.markdown(f'<div class="mega-count">{fmt(count)}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="mega-label">{pinfo["label"]} <span class="material-symbols-rounded" style="font-size:1.2rem;vertical-align:middle;margin-left:8px;">groups</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="mega-label">Subscribers <span class="material-symbols-rounded" style="font-size:1.2rem;vertical-align:middle;margin-left:4px;">groups</span></div>', unsafe_allow_html=True)
     
     # LUX METRIC GRID (Pixel Match)
     if res.get("extra"):
         st.markdown('<div class="metric-container">', unsafe_allow_html=True)
-        cols = st.columns(3)
         for i, itm in enumerate(res["extra"][:3]):
-            with cols[i]:
-                st.markdown(f'''
-                    <div class="lux-metric-box">
-                        <div class="lux-val">{fmt(itm["v"])}</div>
-                        <div class="lux-title">{itm["l"]} <span class="material-symbols-rounded" style="font-size:1rem;color:{pinfo["color"]}aa;">{itm["i"]}</span></div>
-                    </div>
-                ''', unsafe_allow_html=True)
+            st.markdown(f'''
+                <div class="lux-metric-box">
+                    <div class="lux-val">{fmt(itm["v"])}</div>
+                    <div class="lux-title">{itm["l"]} <span class="material-symbols-rounded" style="font-size:0.9rem;color:{pinfo["color"]}aa;">{itm["i"]}</span></div>
+                </div>
+            ''', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div></div>', unsafe_allow_html=True)
     
     # Plotly Graph
     if len(st.session_state.history_values) > 1:
