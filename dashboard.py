@@ -214,8 +214,14 @@ if st.session_state.user_id:
     
     # Plotly Graph
     if len(st.session_state.history_values) > 1:
-        fig = go.Figure(); fig.add_trace(go.Scatter(x=st.session_state.history_times, y=st.session_state.history_values, mode='lines', line=dict(color=pinfo["color"], width=6), fill='tonexty', fillcolor=hex_to_rgba(pinfo['color'], 0.1), showlegend=False))
-        fig.update_layout(height=420, margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Outfit", color="#475569"), xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=False, tickformat=","))
+        y_vals = st.session_state.history_values
+        y_min = min(y_vals)
+        y_max = max(y_vals)
+        pad = max(1, (y_max - y_min) * 0.1)
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=st.session_state.history_times, y=y_vals, mode='lines', line=dict(color=pinfo["color"], width=4), fill='tozeroy', fillcolor=hex_to_rgba(pinfo['color'], 0.1), showlegend=False))
+        fig.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Outfit", color="#cbd5e1"), xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", zeroline=False), yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", zeroline=False, tickformat=",", range=[y_min - pad, y_max + pad]))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     
     # Back Button

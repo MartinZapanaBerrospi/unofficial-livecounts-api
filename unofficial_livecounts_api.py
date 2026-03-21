@@ -77,11 +77,21 @@ class YoutubeAgent:
             import re
             banner_match = re.search(r'"banner":"([^"]*)"', html)
             verified_match = re.search(r'"verified":\s*(true|false)', html)
+            
+            banner = banner_match.group(1) if banner_match else None
+            
+            if not banner and pk.startswith("yt"):
+                yt_res = http_client.get(f"https://www.youtube.com/channel/{uid}")
+                if yt_res.status_code == 200:
+                    yt_b = re.search(r'(https://yt3\.googleusercontent\.com/[^\"]+=w1060-fcrop64=[^\"]*|https://yt3\.ggpht\.com/[^\"]+=w1060-fcrop64=[^\"]*)', yt_res.text)
+                    if yt_b: banner = yt_b.group(1).replace("\\u0026", "&")
+
             return {
-                "banner": banner_match.group(1) if banner_match else None,
+                "banner": banner,
                 "verified": verified_match.group(1) == "true" if verified_match else False
             }
-        except: return {"banner": None, "verified": False}
+        except Exception as e:
+            return {"banner": None, "verified": False}
 
 PLATFORMS_SLUGS = {
     "yt_subs": "youtube-live-subscriber-counter",
