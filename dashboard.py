@@ -16,7 +16,10 @@ CSS = (
     
     # Core Base
     "body, .stApp { "
-    "   background: #050505 !important; "
+    "   background: radial-gradient(circle at 15% 50%, rgba(29, 78, 216, 0.08), transparent 25%), "
+    "               radial-gradient(circle at 85% 30%, rgba(255, 43, 43, 0.08), transparent 25%), "
+    "               #050505 !important; "
+    "   background-attachment: fixed !important; "
     "   color: #f8fafc !important; "
     "   font-family: 'Outfit', sans-serif !important; "
     "}"
@@ -26,50 +29,54 @@ CSS = (
     # Hero & Search Row
     ".hero-section { text-align: center; padding: 12vh 2rem 5vh; }"
     ".hero-title { font-size: clamp(3.2rem, 8vw, 6.5rem); font-weight: 900; letter-spacing: -5px; color: #fff; line-height: 0.9; margin-bottom: 0.5rem; }"
-    ".hero-subtitle { color: #64748b; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 8px; font-weight: 700; margin-bottom: 4rem; }"
+    ".hero-subtitle { color: #64748b; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 8px; font-weight: 700; margin-bottom: 4rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }"
     
     # Input Styling
-    "div[data-baseweb='select'] > div { background: #0f172a !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px !important; height: 52px !important; }"
-    "div[data-testid='stTextInput'] input { background: #0f172a !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px !important; color: #fff !important; height: 52px !important; font-size: 1rem !important; }"
+    "div[data-baseweb='select'] > div { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; height: 52px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
+    "div[data-testid='stTextInput'] input { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; color: #fff !important; height: 52px !important; font-size: 1rem !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
     "div[data-baseweb='select'] input { padding: 0 !important; width: 0 !important; height: 0 !important; }"
     
     # Buttons
     "div.stButton > button { "
     "   border-radius: 12px !important; height: 52px !important; font-weight: 700 !important; "
-    "   background: rgba(255,255,255,0.05) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; "
-    "   transition: all 0.3s ease !important; "
+    "   background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.08) !important; "
+    "   box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; transition: all 0.3s ease !important; "
     "}"
-    "div.stButton > button:hover { background: rgba(255,255,255,0.1) !important; transform: translateY(-2px); }"
-    "button[kind='primary'] { background: #1d4ed8 !important; border: none !important; }"
+    "div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.15) !important; }"
+    "button[kind='primary'] { background: linear-gradient(135deg, rgba(29,78,216,0.6), rgba(29,78,216,0.2)) !important; border: 1px solid rgba(29,78,216,0.5) !important; box-shadow: 0 8px 32px rgba(29,78,216,0.2) !important; }"
+    "button[kind='primary']:hover { background: linear-gradient(135deg, rgba(29,78,216,0.8), rgba(29,78,216,0.4)) !important; }"
     
-    # DASHBOARD BRANDING (v8.0)
+    # DASHBOARD BRANDING (Glassmorphism)
     ".banner-section { width: 100%; height: 320px; position: relative; overflow: hidden; background: #111; }"
-    ".banner-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); }"
+    ".banner-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); mask-image: linear-gradient(to bottom, black 50%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%); }"
     ".centered-avatar-box { position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); z-index: 100; }"
-    ".main-avatar { width: 160px; height: 160px; border-radius: 50%; border: 4px solid #FF2B2B; box-shadow: 0 20px 50px rgba(0,0,0,0.8); object-fit: cover; background: #000; }"
+    ".main-avatar { width: 160px; height: 160px; border-radius: 50%; border: 4px solid rgba(255,43,43,0.8); box-shadow: 0 0 40px rgba(255,43,43,0.4); object-fit: cover; background: #000; }"
     
     ".dashboard-header { text-align: center; padding-top: 100px; padding-bottom: 50px; position: relative; }"
-    ".channel-name { font-size: 3rem; font-weight: 800; color: #cbd5e1; margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 5px 20px; border-radius: 8px; display: inline-block; }"
-    ".platform-badge { font-size: 1.5rem; color: #FF2B2B; margin-bottom: 3rem; }"
-    ".mega-count { font-size: clamp(6rem, 15vw, 12rem); font-weight: 900; color: #fff; line-height: 0.8; letter-spacing: -5px; margin-bottom: 1rem; }"
-    ".mega-label { font-size: 1.2rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 4px; }"
+    ".channel-name { font-size: 3rem; font-weight: 800; color: #cbd5e1; margin-bottom: 1rem; background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 5px 20px; border-radius: 12px; display: inline-block; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.15); }"
+    ".platform-badge { font-size: 1.5rem; color: #FF2B2B; margin-bottom: 3rem; text-shadow: 0 0 10px rgba(255,43,43,0.5); }"
+    ".mega-count { font-size: clamp(6rem, 15vw, 12rem); font-weight: 900; color: #fff; line-height: 0.8; letter-spacing: -5px; margin-bottom: 1rem; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }"
+    ".mega-label { font-size: 1.2rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }"
     
-    # METRIC BOXES (Pixel-Perfect Image Match)
+    # METRIC BOXES (Glassmorphism)
     ".metric-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; padding: 0 1rem; }"
     ".lux-metric-box { "
-    "   background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.15); border-radius: 8px; "
+    "   background: rgba(255,255,255,0.02); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); "
+    "   border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2); "
     "   padding: 2.5rem 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; "
+    "   transition: transform 0.3s ease, background 0.3s ease, border 0.3s ease; "
     "}"
-    ".lux-val { font-size: 2.8rem; font-weight: 800; color: #fff; letter-spacing: -1px; }"
-    ".lux-title { color: #3b82f6; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; text-transform: none; }"
+    ".lux-metric-box:hover { transform: translateY(-5px); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); }"
+    ".lux-val { font-size: 2.8rem; font-weight: 800; color: #fff; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }"
+    ".lux-title { color: #3b82f6; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; text-transform: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }"
     
     # Graph & Back
     ".stPlotlyChart { margin-top: 60px; padding: 0 10px; }"
     ".back-container { margin-top: 80px; text-align: center; padding-bottom: 100px; }"
     
     # Search List
-    ".mini-avatar { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }"
-    ".list-divider { border-bottom: 1px solid rgba(255,255,255,0.05); margin: 15px 0; }"
+    ".mini-avatar { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }"
+    ".list-divider { border-bottom: 1px solid rgba(255,255,255,0.02); margin: 15px 0; }"
 )
 st.markdown(f"<link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,700,1,0' /><style>{CSS}</style>", unsafe_allow_html=True)
 
