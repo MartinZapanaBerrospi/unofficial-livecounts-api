@@ -15,7 +15,7 @@ CSS = (
     "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap');"
     
     # Core Base
-    "body, .stApp { "
+    "body, .stApp, [data-testid='stAppViewContainer'] { "
     "   background: radial-gradient(circle at 15% 50%, rgba(29, 78, 216, 0.08), transparent 25%), "
     "               radial-gradient(circle at 85% 30%, rgba(255, 43, 43, 0.08), transparent 25%), "
     "               #050505 !important; "
@@ -23,6 +23,7 @@ CSS = (
     "   color: #f8fafc !important; "
     "   font-family: 'Outfit', sans-serif !important; "
     "}"
+    "header[data-testid='stHeader'] { background: transparent !important; }"
     "#MainMenu, footer, header { visibility: hidden; }"
     ".main-container { padding: 0; max-width: 1200px; margin: 0 auto; }"
     
@@ -32,19 +33,20 @@ CSS = (
     ".hero-subtitle { color: #64748b; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 8px; font-weight: 700; margin-bottom: 4rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }"
     
     # Input Styling
-    "div[data-baseweb='select'] > div { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; height: 52px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
+    "div[data-baseweb='select'] > div, div[data-testid='stSelectbox'] > div > div { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; height: 52px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
     "div[data-testid='stTextInput'] input { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 12px !important; color: #fff !important; height: 52px !important; font-size: 1rem !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }"
     "div[data-baseweb='select'] input { padding: 0 !important; width: 0 !important; height: 0 !important; }"
     
     # Buttons
-    "div.stButton > button { "
+    "div[data-testid='stButton'] button, div.stButton > button { "
     "   border-radius: 12px !important; height: 52px !important; font-weight: 700 !important; "
     "   background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.08) !important; "
     "   box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; transition: all 0.3s ease !important; "
     "}"
-    "div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.15) !important; }"
-    "button[kind='primary'] { background: linear-gradient(135deg, rgba(29,78,216,0.6), rgba(29,78,216,0.2)) !important; border: 1px solid rgba(29,78,216,0.5) !important; box-shadow: 0 8px 32px rgba(29,78,216,0.2) !important; }"
-    "button[kind='primary']:hover { background: linear-gradient(135deg, rgba(29,78,216,0.8), rgba(29,78,216,0.4)) !important; }"
+    "div[data-testid='stButton'] button:hover, div.stButton > button:hover { background: rgba(255,255,255,0.06) !important; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.15) !important; }"
+    
+    "div[data-testid='stButton'] button[kind='primary'], button[kind='primary'], button[data-testid='baseButton-primary'] { background: linear-gradient(135deg, rgba(29,78,216,0.6), rgba(29,78,216,0.2)) !important; border: 1px solid rgba(29,78,216,0.5) !important; box-shadow: 0 8px 32px rgba(29,78,216,0.2) !important; color: #fff !important; }"
+    "div[data-testid='stButton'] button[kind='primary']:hover, button[kind='primary']:hover, button[data-testid='baseButton-primary']:hover { background: linear-gradient(135deg, rgba(29,78,216,0.8), rgba(29,78,216,0.4)) !important; }"
     
     # DASHBOARD BRANDING (Glassmorphism)
     ".banner-section { width: 100%; height: 320px; position: relative; overflow: hidden; background: #111; }"
