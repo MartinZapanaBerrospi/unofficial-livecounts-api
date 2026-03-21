@@ -159,7 +159,8 @@ if st.session_state.user_id:
                 found = (api.youtube.find_channel(st.session_state.user_id) if pk=="yt_subs" else api.youtube.find_video(st.session_state.user_id))
                 for r in found:
                     if r.get("id") == st.session_state.user_id:
-                        st.session_state.update(user_name=r.get("name"), user_avatar=r.get("avatar"))
+                        h_label = f"@{r.get('handle', r.get('username', r.get('name', st.session_state.user_id)))}".replace("@@", "@")
+                        st.session_state.update(user_name=h_label, user_avatar=r.get("avatar", r.get("thumbnail", "")))
                         break
             else: # TikTok
                 st.session_state.user_banner = "https://www.tiktok.com/static/images/tiktok_logo_black.png" # Fallback
@@ -180,37 +181,38 @@ if st.session_state.user_id:
     
     # BRANDING SECTION (v8.0)
     banner_url = st.session_state.user_banner or "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop"
-    st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-    st.markdown('<div class="banner-section">', unsafe_allow_html=True)
-    st.markdown(f'<img src="{banner_url}" class="banner-img">', unsafe_allow_html=True)
-    st.markdown(f'<div class="centered-avatar-box"><img src="{st.session_state.user_avatar}" class="main-avatar" style="border-color:{pinfo["color"]};"></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="dashboard-header">', unsafe_allow_html=True)
-    st.markdown(f'<div class="channel-name">{st.session_state.user_name}</div>', unsafe_allow_html=True)
-    
-    # Platform Icon Badge
-    if pinfo["tag"] == "youtube":
-        st.markdown('<div class="platform-badge" style="color:#FF0000;"><span class="material-symbols-rounded" style="font-size:1.2rem;">play_circle</span></div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="platform-badge" style="color:#00F5FF;"><span class="material-symbols-rounded" style="font-size:1.2rem;">music_note</span></div>', unsafe_allow_html=True)
-        
-    st.markdown(f'<div class="mega-count">{fmt(count)}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="mega-label">Subscribers <span class="material-symbols-rounded" style="font-size:1.2rem;vertical-align:middle;margin-left:4px;">groups</span></div>', unsafe_allow_html=True)
+    icon = 'play_circle' if pinfo["tag"] == "youtube" else 'music_note'
+    html_block = f'''
+    <div class="dashboard-card">
+        <div class="banner-section">
+            <img src="{banner_url}" class="banner-img">
+            <div class="centered-avatar-box">
+                <img src="{st.session_state.user_avatar}" class="main-avatar" style="border-color:{pinfo["color"]};">
+            </div>
+        </div>
+        <div class="dashboard-header">
+            <div class="channel-name">{st.session_state.user_name}</div>
+            <div class="platform-badge" style="color:{pinfo["color"]};">
+                <span class="material-symbols-rounded" style="font-size:1.2rem;">{icon}</span>
+            </div>
+            <div class="mega-count">{fmt(count)}</div>
+            <div class="mega-label">{pinfo["label"]} <span class="material-symbols-rounded" style="font-size:1.2rem;vertical-align:middle;margin-left:4px;">groups</span></div>
+    '''
     
     # LUX METRIC GRID (Pixel Match)
     if res.get("extra"):
-        st.markdown('<div class="metric-container">', unsafe_allow_html=True)
-        for i, itm in enumerate(res["extra"][:3]):
-            st.markdown(f'''
+        html_block += '<div class="metric-container">'
+        for itm in res["extra"][:3]:
+            html_block += f'''
                 <div class="lux-metric-box">
                     <div class="lux-val">{fmt(itm["v"])}</div>
                     <div class="lux-title">{itm["l"]} <span class="material-symbols-rounded" style="font-size:0.9rem;color:{pinfo["color"]}aa;">{itm["i"]}</span></div>
                 </div>
-            ''', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            '''
+        html_block += '</div>'
     
-    st.markdown('</div></div>', unsafe_allow_html=True)
+    html_block += '</div></div>'
+    st.markdown(html_block, unsafe_allow_html=True)
     
     # Plotly Graph
     if len(st.session_state.history_values) > 1:
@@ -267,7 +269,7 @@ else:
                             if st.button(h_label, key=f"sel_{i}", use_container_width=True):
                                 slug = [v["slug"] for v in PLATFORMS.values() if v["key"] == st.session_state.platform_key][0]
                                 st.query_params.update(u=f"{slug}/{rid}")
-                                st.session_state.update(user_id=rid, user_name=r.get("name", rid), user_avatar=ravatar, show_results=False, history_values=[], history_times=[])
+                                st.session_state.update(user_id=rid, user_name=h_label, user_avatar=ravatar, show_results=False, history_values=[], history_times=[])
                                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div></div>', unsafe_allow_html=True)
